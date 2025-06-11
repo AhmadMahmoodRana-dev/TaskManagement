@@ -33,7 +33,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`flex flex-col bg-gradient-to-b from-indigo-800 to-indigo-900 text-white h-screen transition-all duration-300 ${expanded ? 'w-64' : 'w-20'}`}>
+    <div className={`flex flex-col sticky top-0 bg-gradient-to-b from-indigo-800 to-indigo-900 text-white h-screen transition-all duration-300 ${expanded ? 'w-64' : 'w-20'}`}>
       {/* Header */}
       <div className="p-4 pb-2 flex justify-between items-center border-b border-indigo-700">
         <div className={`flex items-center overflow-hidden transition-all ${expanded ? 'w-44' : 'w-0'}`}>

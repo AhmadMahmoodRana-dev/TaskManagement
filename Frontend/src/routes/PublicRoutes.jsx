@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 const PublicRoutes = () => {
-  const token = false;
+  const token = true;
 
   return token ? <Navigate to="/" /> : <Outlet />;
 };
