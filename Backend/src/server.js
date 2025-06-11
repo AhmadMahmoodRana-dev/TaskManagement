@@ -1,12 +1,12 @@
 import express from "express";
 import ConnectDb from "./config/ConnectDb.js";
-
+import MainRoute from "./routes/MainRoute.js";
+import "dotenv/config.js"
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+MainRoute(app);
 
 ConnectDb().then(() => {
   app.listen(3000, () => {
