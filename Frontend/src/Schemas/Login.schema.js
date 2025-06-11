@@ -1,4 +1,5 @@
-  // Validation schema
+import * as Yup from "yup";
+
   const LoginvalidationSchema = Yup.object({
     email: Yup.string()
       .email('Invalid email address')
