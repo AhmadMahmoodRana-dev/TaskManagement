@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../schema/User.schema.js";
-import "dotenv/config.js"
+import "dotenv/config.js";
 
-// REGISTER 
+// REGISTER
 
 export const Register = async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -32,7 +32,9 @@ export const Register = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully",userId: newUser._id});
+    res
+      .status(201)
+      .json({ message: "User registered successfully", userId: newUser._id });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -45,9 +47,7 @@ export const Login = async (req, res) => {
 
   // 1. Validate inputs
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Email and password are required" });
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
@@ -86,8 +86,21 @@ export const Login = async (req, res) => {
   }
 };
 
+// FETCH ALL USERS
+export const FetchAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Fetch All Users Error:", error); // 🔍 Debug the actual server error
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // LOGOUT
 
-export const Logout = (async (req,res) =>{
- res.status(200).json({ message: "Logout successful, remove token on client side" });
-})
+export const Logout = async (req, res) => {
+  res
+    .status(200)
+    .json({ message: "Logout successful, remove token on client side" });
+};

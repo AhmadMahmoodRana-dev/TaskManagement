@@ -5,6 +5,7 @@ import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import Home from "./pages/Main/Home";
 import { useEffect } from "react";
+import ProjectDashboard from "./pages/Main/ProjectDashboard";
 
 const App = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const App = () => {
         </Route>
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<Home />} />
+          <Route path="/project-dashboard" element={<ProjectDashboard />} />
         </Route>
       </Routes>
     </>
