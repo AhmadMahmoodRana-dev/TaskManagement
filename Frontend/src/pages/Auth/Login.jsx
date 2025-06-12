@@ -1,18 +1,49 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import LoginvalidationSchema from "../../Schemas/Login.schema";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import BASEURL from "../../constant/BaseUrl";
 
 const Login = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
-  const initialValues = {
-    email: "",
-    password: "",
-  };
-  const handleSubmit = (values) => {
-    console.log("Form submitted:", values);
-    // Submit logic here (e.g., API call)
-  };
+  const initialValues = {email: "",password: ""};
+ 
+  const handleSubmit = async (values, { setSubmitting }) => {
+  try {
+    const response = await axios.post(`${BASEURL}/auth/login`, {
+      email: values.email,
+      password: values.password,
+    });
+
+    const { token, user } = response.data;
+
+    if (token) {
+      // 1. Save token and expiry time
+      localStorage.setItem("authToken", token);
+      const expiry = Date.now() + 30 * 60 * 1000; // 30 minutes
+      localStorage.setItem("tokenExpiry", expiry.toString());
+
+      // 2. Auto-logout after 30 mins
+      setTimeout(() => {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("tokenExpiry");
+        alert("Session expired. Please login again.");
+        window.location.reload(); // or navigate to login page
+      }, 30 * 60 * 1000);
+
+      // 3. Redirect or handle login success
+      console.log("Login successful:", user);
+      navigate("/")
+    }
+  } catch (error) {
+    console.error("Login failed:", error.response?.data || error.message);
+    alert(error.response?.data?.message || "Login failed");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
