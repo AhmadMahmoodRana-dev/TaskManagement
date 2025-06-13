@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import LoginvalidationSchema from "../../Schemas/Login.schema";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import BASEURL from "../../constant/BaseUrl";
 
 const Login = () => {
@@ -22,12 +22,16 @@ const Login = () => {
     if (token) {
       // 1. Save token and expiry time
       localStorage.setItem("authToken", token);
+      localStorage.setItem("authId", user?.id);
+      localStorage.setItem("authName", user?.name);
       const expiry = Date.now() + 30 * 60 * 1000; // 30 minutes
       localStorage.setItem("tokenExpiry", expiry.toString());
 
       // 2. Auto-logout after 30 mins
       setTimeout(() => {
         localStorage.removeItem("authToken");
+        localStorage.removeItem("authId");
+        localStorage.removeItem("authName");
         localStorage.removeItem("tokenExpiry");
         alert("Session expired. Please login again.");
         window.location.reload(); // or navigate to login page
@@ -70,9 +74,9 @@ const Login = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600 max-w">
             Don't have an account?{" "}
-            <button className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link to={"/register"} className="font-medium text-indigo-600 hover:text-indigo-500">
               Register here
-            </button>
+            </Link>
           </p>
         </div>
       </div>

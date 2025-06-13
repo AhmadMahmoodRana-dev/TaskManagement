@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RegisterValidationSchema from "../../Schemas/Register.schema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
@@ -75,9 +75,9 @@ const Register = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600 max-w">
             Already have an account?{" "}
-            <button className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link to={'/login'} className="font-medium text-indigo-600 hover:text-indigo-500">
               Sign in here
-            </button>
+            </Link>
           </p>
         </div>
       </div>

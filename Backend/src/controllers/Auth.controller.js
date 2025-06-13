@@ -97,6 +97,67 @@ export const FetchAllUsers = async (req, res) => {
   }
 };
 
+
+// UPDATE PROFILE
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const updates = {
+      name: req.body.name,
+      username: req.body.username,
+      age: req.body.age,
+      gender: req.body.gender,
+      phone: req.body.phone,
+      address: req.body.address,
+      avatar: req.body.avatar,
+      isUpdated:req.body.isUpdated || false,
+    };
+
+    // Optional: only admins can change roles
+    if (req.user.role === "admin" && req.body.role) {
+      updates.role = req.body.role;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// GET PROFILE
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
 // LOGOUT
 
 export const Logout = async (req, res) => {
