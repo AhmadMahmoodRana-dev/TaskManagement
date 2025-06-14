@@ -102,7 +102,14 @@ export const FetchAllUsers = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
+    console.log("🧾 Received Form Data:", req.body); 
+    console.log("🔐 Authenticated User:", req.user);
+
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: No user ID" });
+    }
 
     const updates = {
       name: req.body.name,
@@ -112,10 +119,9 @@ export const updateProfile = async (req, res) => {
       phone: req.body.phone,
       address: req.body.address,
       avatar: req.body.avatar,
-      isUpdated:req.body.isUpdated || false,
+      isUpdated: req.body.isUpdated || false,
     };
 
-    // Optional: only admins can change roles
     if (req.user.role === "admin" && req.body.role) {
       updates.role = req.body.role;
     }
@@ -132,10 +138,11 @@ export const updateProfile = async (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.error("Update Profile Error:", error);
+    console.error("❌ Update Profile Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // GET PROFILE
 

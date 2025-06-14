@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 const ProfileForm = () => {
@@ -8,16 +8,48 @@ const ProfileForm = () => {
 
   const [formData, setFormData] = useState({
     name: UserName,
-    username: UserId + UserName,
+    username: UserName + UserId,
     age: "",
     gender: "",
     phone: "",
     address: "",
     avatar: null,
     preview: "",
-    isUpdated: true
+    isUpdated: true,
   });
 
+  // 🔹 Fetch existing user data on component mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get(
+          `${BASEURL}/auth/getProfile/${UserId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = response.data;
+
+        setFormData((prev) => ({
+          ...prev,
+          name: data.name || "",
+          username: data.name + data._id || "",
+          age: data.age || "",
+          gender: data.gender || "",
+          phone: data.phone || "",
+          address: data.address || "",
+          preview: data.avatarUrl || "", // assuming avatarUrl is a direct image link
+        }));
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [UserId, token]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -41,26 +73,27 @@ const ProfileForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-    console.log("formData",formData)
-    try {
-      const response = await axios.put(
-        `${BASEURL}/auth/updateProfile/${UserId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data);
-      alert("Profile updated successfully");
-    } catch (error) {
-      console.error(error);
-    }
-    console.log(formData, "Profile Form Data");
-  };
+  const handleSubmit = async () => {
+  console.log("📤 Submitting Form:", formData);
+  console.log("🔑 Token:", token);
+
+  try {
+    const response = await axios.put(
+      `${BASEURL}/auth/updateProfile`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("✅ Update Success:", response.data);
+    alert("Profile updated successfully");
+  } catch (error) {
+    console.error("❌ Update Error:", error.response?.data || error.message);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 w-full">
@@ -114,6 +147,42 @@ const ProfileForm = () => {
                     hover:file:bg-blue-100"
                 />
               </label>
+            </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                readOnly
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="+1 (555) 123-4567"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                User Name
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="+1 (555) 123-4567"
+                readOnly
+              />
             </div>
 
             {/* Age and Gender */}
@@ -213,3 +282,4 @@ const ProfileForm = () => {
 };
 
 export default ProfileForm;
+
