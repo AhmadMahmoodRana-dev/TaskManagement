@@ -161,3 +161,33 @@ try {
     });
   }
 }
+
+
+// Get all projects where user is owner or manager
+
+export const getMyProjects = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+
+    const projects = await Project.find({
+      members: {
+        $elemMatch: {
+          user: userId,
+          role: { $in: ["owner", "manager"] },
+        },
+      },
+    })
+      .populate("createdBy", "name email")
+      .populate("members.user", "name email");
+
+    res.json({
+      success: true,
+      data: projects,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
