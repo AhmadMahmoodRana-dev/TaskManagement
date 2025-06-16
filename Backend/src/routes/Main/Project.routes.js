@@ -1,6 +1,6 @@
 import {Router} from "express"
 import { authenticateToken } from "../../middlewares/Auth.middleware.js";
-import { addMember, CreateProject, getProjectDetail } from "../../controllers/Project.controller.js";
+import { addMember, CreateProject, getProjectDetail, updateProjectProgress, updateProjectStatus } from "../../controllers/Project.controller.js";
 
 const ProjectRoute = Router();
 

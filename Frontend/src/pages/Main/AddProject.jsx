@@ -7,6 +7,7 @@ import {
   FaCode,
   FaEye,
 } from "react-icons/fa";
+import ProjectModel from "../../components/models/ProjectModel";
 
 const AddProject = () => {
   const [projects, setProjects] = useState([
@@ -55,7 +56,11 @@ const AddProject = () => {
     }
   };
 
+  const [open, setOpen] = useState(false)
+
   return (
+    <>
+
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -78,7 +83,7 @@ const AddProject = () => {
             </div>
 
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setOpen(!open)}
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300"
             >
               <FaPlus className="mr-2" /> New Project
@@ -157,6 +162,8 @@ const AddProject = () => {
         )}
       </div>
     </div>
+    <ProjectModel setOpen={setOpen} open={open}/>
+    </>
   );
 };
 
