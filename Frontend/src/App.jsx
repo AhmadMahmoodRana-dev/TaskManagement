@@ -14,7 +14,6 @@ const App = () => {
 
   useEffect(() => {
     const expiry = localStorage.getItem("tokenExpiry");
-    const token = localStorage.getItem("authToken");
 
     if (expiry && Date.now() > parseInt(expiry, 10)) {
       localStorage.removeItem("authToken");

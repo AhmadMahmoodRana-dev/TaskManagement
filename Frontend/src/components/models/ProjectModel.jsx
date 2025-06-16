@@ -3,10 +3,25 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { HiOutlineXMark } from "react-icons/hi2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import ProjectSchema from "../../Schemas/Project.schema";
+import axios from "axios";
+import BASEURL from "../../constant/BaseUrl";
 
+export default function ProjectModel({ open, setOpen }) {
+  const token = localStorage.getItem("authToken");
 
-
-export default function ProjectModel({open, setOpen}) {
+  const AddProject = async (values) => {
+    try {
+      const response = await axios.post(`${BASEURL}/project/create`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      setOpen(false);
+    } catch (error) {
+      console.error("Error Creating Project",error)
+    }
+  };
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -32,14 +47,15 @@ export default function ProjectModel({open, setOpen}) {
               </button>
 
               <div className="w-full">
-                <h2 className="text-xl font-semibold mb-4">Create New Project</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Create New Project
+                </h2>
                 <Formik
                   initialValues={{ name: "", description: "", deadline: "" }}
                   validationSchema={ProjectSchema}
                   onSubmit={(values, { resetForm }) => {
-                    console.log("Submitted values:", values);
+                    AddProject(values)
                     resetForm();
-                    setOpen(false);
                   }}
                 >
                   {({ isSubmitting }) => (

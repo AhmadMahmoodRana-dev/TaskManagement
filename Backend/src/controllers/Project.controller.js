@@ -5,7 +5,7 @@ import Project from "../schema/Project.schema.js";
 export const CreateProject = async (req,res) => {
   try {
     const { name, description, deadline } = req.body;
-    const userId = req.user._id; 
+    const userId = req.user?.userId;
 
     const project = new Project({
       name,
