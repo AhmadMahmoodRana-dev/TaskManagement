@@ -45,7 +45,7 @@ export const addMember = async (req,res) =>{
     if (!project) return res.status(404).json({ error: "Project not found" });
 
     // Authorization check (only owners/managers can add members)
-    const requester = project.members.find((m) => m.user.equals(req.user._id));
+    const requester = project.members.find((m) => m.user.equals(req.user.userId));
     if (!requester || !["owner", "manager"].includes(requester.role)) {
       return res.status(403).json({ error: "Unauthorized action" });
     }

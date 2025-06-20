@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import BASEURL from "../../constant/BaseUrl";
-import {
-  HiOutlineMenu,
-  HiOutlineBell,
-  HiOutlineSearch,
-  HiOutlinePlus,
-  HiOutlineCalendar,
-  HiOutlineClock,
-  HiOutlineCheckCircle,
-  HiOutlineDocumentText,
-  HiOutlineFilter,
-  HiOutlineChevronDown,
-  HiOutlineDotsVertical,
-} from "react-icons/hi";
+import { useContext } from "react";
+import { useState} from "react";
+import {HiOutlineMenu,HiOutlineBell,HiOutlineSearch,HiOutlinePlus,HiOutlineCalendar,HiOutlineClock,HiOutlineCheckCircle,HiOutlineDocumentText,HiOutlineFilter,HiOutlineChevronDown,HiOutlineDotsVertical} from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { Context } from "../../context/Context";
 
 const Home = () => {
+  const {teamMembers} = useContext(Context)
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -101,29 +90,7 @@ const Home = () => {
     },
   ]);
 
-  // ###  ALL USERS ###
 
-  const [teamMembers, setTeamMembers] = useState([]);
-
-  const allUsers = async () => {
-    const token = localStorage.getItem("authToken");
-
-    try {
-      const { data } = await axios.get(`${BASEURL}/auth/allUser`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setTeamMembers(data);
-      console.log("All Users Data:", teamMembers);
-    } catch (error) {
-      console.error("Error fetching all users:", error);
-    }
-  };
-
-  useEffect(() => {
-    allUsers();
-  }, []);
 
   const [newTask, setNewTask] = useState("");
   const [activeTab, setActiveTab] = useState("all");
