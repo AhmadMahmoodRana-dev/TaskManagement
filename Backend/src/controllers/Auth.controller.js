@@ -23,11 +23,13 @@ export const Register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const username = name + email;
 
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
+      username
     });
 
     await newUser.save();
@@ -36,8 +38,9 @@ export const Register = async (req, res) => {
       .status(201)
       .json({ message: "User registered successfully", userId: newUser._id });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
+  console.error("Registration error:", error); // <--- THIS
+  res.status(500).json({ message: "Server error" });
+}
 };
 
 // LOGIN

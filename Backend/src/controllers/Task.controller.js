@@ -31,7 +31,7 @@ export const createTask = async (req, res) => {
   }
 };
 
-// Get task by ID
+// Get task by task ID
 export const getTaskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.taskId)

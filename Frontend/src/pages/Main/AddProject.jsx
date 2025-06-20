@@ -1,33 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {FaPlus,FaSearch,FaUserFriends,FaUserCog,FaCode,FaEye} from "react-icons/fa";
 import ProjectModel from "../../components/models/ProjectModel";
-import axios from "axios";
-import BASEURL from "../../constant/BaseUrl";
 import { Link } from "react-router-dom";
 import { useDebouncedSearch } from "../../hooks/useDebouncedSearch";
+import { Context } from "../../context/Context";
 
 const AddProject = () => {
-  const [projects, setProjects] = useState([]);
-  const token = localStorage.getItem("authToken");
-
-  const fetchAllProjects = async () => {
-    try {
-      const { data } = await axios.get(`${BASEURL}/project/myprojects`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setProjects(data.data);
-      console.log("My Projects Fetched SucessFully");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllProjects();
-  }, []);
-
+  const {projects} = useContext(Context)
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedQuery = useDebouncedSearch(searchTerm, 700);
 

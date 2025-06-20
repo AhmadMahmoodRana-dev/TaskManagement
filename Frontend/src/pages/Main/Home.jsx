@@ -1,101 +1,37 @@
-import { useContext } from "react";
-import { useState} from "react";
-import {HiOutlineMenu,HiOutlineBell,HiOutlineSearch,HiOutlinePlus,HiOutlineCalendar,HiOutlineClock,HiOutlineCheckCircle,HiOutlineDocumentText,HiOutlineFilter,HiOutlineChevronDown,HiOutlineDotsVertical} from "react-icons/hi";
+import { useContext, useEffect } from "react";
+import { useState } from "react";
+import {HiOutlineBell,HiOutlineSearch,HiOutlineCalendar,HiOutlineClock,HiOutlineCheckCircle,HiOutlineDocumentText,HiOutlineDotsVertical} from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { Context } from "../../context/Context";
+import axios from "axios";
+import BASEURL from "../../constant/BaseUrl";
+import formatDate from "../../constant/FormatDate";
 
 const Home = () => {
-  const {teamMembers} = useContext(Context)
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Complete project proposal",
-      category: "Work",
-      priority: "High",
-      completed: false,
-      date: "2023-05-15",
-      description: "Finalize and submit proposal to client",
-    },
-    {
-      id: 2,
-      title: "Team meeting with design",
-      category: "Work",
-      priority: "Medium",
-      completed: false,
-      date: "2023-05-16",
-      description: "Discuss UI improvements",
-    },
-    {
-      id: 3,
-      title: "Buy groceries",
-      category: "Personal",
-      priority: "Medium",
-      completed: true,
-      date: "2023-05-14",
-      description: "Milk, eggs, vegetables",
-    },
-    {
-      id: 4,
-      title: "Gym workout",
-      category: "Health",
-      priority: "Low",
-      completed: false,
-      date: "2023-05-15",
-      description: "Cardio and strength training",
-    },
-    {
-      id: 5,
-      title: "Update portfolio website",
-      category: "Work",
-      priority: "High",
-      completed: false,
-      date: "2023-05-17",
-      description: "Add new projects and case studies",
-    },
-    {
-      id: 6,
-      title: "Call mom",
-      category: "Personal",
-      priority: "Low",
-      completed: true,
-      date: "2023-05-14",
-      description: "Check on birthday plans",
-    },
-  ]);
-
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "Website Redesign",
-      progress: 75,
-      tasks: 12,
-      color: "bg-indigo-500",
-      deadline: "2023-06-15",
-    },
-    {
-      id: 2,
-      name: "Mobile App",
-      progress: 40,
-      tasks: 8,
-      color: "bg-teal-500",
-      deadline: "2023-07-10",
-    },
-    {
-      id: 3,
-      name: "Marketing Campaign",
-      progress: 30,
-      tasks: 5,
-      color: "bg-amber-500",
-      deadline: "2023-05-30",
-    },
-  ]);
-
-
-
-  const [newTask, setNewTask] = useState("");
+  const { teamMembers,projects } = useContext(Context);
+  const token = localStorage.getItem("authToken");
+  const name = localStorage.getItem("authName");
   const [activeTab, setActiveTab] = useState("all");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showTaskDetails, setShowTaskDetails] = useState(null);
+
+  const [tasks, setTasks] = useState([]);
+
+  const allTasks = async () => {
+    try {
+      const { data } = await axios.get(`${BASEURL}/task/my`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTasks(data)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+useEffect(() =>{
+  allTasks();
+},[])
+
   const [filterOptions, setFilterOptions] = useState({
     priority: "all",
     status: "all",
@@ -114,26 +50,10 @@ const Home = () => {
     );
   };
 
-  const addTask = () => {
-    if (newTask.trim() !== "") {
-      const task = {
-        id: tasks.length + 1,
-        title: newTask,
-        category: "Personal",
-        priority: "Medium",
-        completed: false,
-        date: new Date().toISOString().split("T")[0],
-        description: "Add task description",
-      };
-      setTasks([task, ...tasks]);
-      setNewTask("");
-    }
-  };
-
   const filteredTasks =
     activeTab === "all"
       ? tasks
-      : tasks.filter((task) => task.category.toLowerCase() === activeTab);
+      : tasks.filter((task) => task.priority.toLowerCase() === activeTab);
 
   const pendingTasks = tasks.filter((task) => !task.completed).length;
   const completedTasks = tasks.filter((task) => task.completed).length;
@@ -182,12 +102,6 @@ const Home = () => {
         <header className="bg-white shadow-sm z-10">
           <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="mr-4 text-gray-500 lg:hidden"
-              >
-                <HiOutlineMenu className="h-6 w-6" />
-              </button>
               <h2 className="text-xl font-semibold text-gray-800">Dashboard</h2>
             </div>
 
@@ -208,7 +122,7 @@ const Home = () => {
                 <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
               </button>
 
-              <Link to={'/profileForm'} className="relative">
+              <Link to={"/profileForm"} className="relative">
                 <img
                   className="h-8 w-8 rounded-full object-cover"
                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
@@ -224,7 +138,7 @@ const Home = () => {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
           {/* Welcome Banner */}
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white mb-6">
-            <h1 className="text-2xl font-bold mb-2">Welcome back, Ahmad!</h1>
+            <h1 className="text-2xl font-bold mb-2">Welcome back, {name}!</h1>
             <p className="opacity-90">
               You have {pendingTasks} pending tasks.{" "}
               {pendingTasks > 0 ? "Let's get things done!" : "Great job!"}
@@ -290,37 +204,6 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* Add Task */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-800">
-                    Add New Task
-                  </h3>
-                  <button className="flex items-center text-sm text-gray-500 hover:text-gray-700">
-                    <HiOutlineFilter className="h-4 w-4 mr-1" />
-                    Filter
-                    <HiOutlineChevronDown className="h-4 w-4 ml-1" />
-                  </button>
-                </div>
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={newTask}
-                    onChange={(e) => setNewTask(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && addTask()}
-                    className="flex-1 border border-gray-300 rounded-l-lg py-3 px-4 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="What needs to be done?"
-                  />
-                  <button
-                    onClick={addTask}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-r-lg flex items-center"
-                  >
-                    <HiOutlinePlus className="h-5 w-5" />
-                    <span className="ml-1 hidden sm:inline">Add Task</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Tasks List */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="border-b border-gray-200">
@@ -337,13 +220,13 @@ const Home = () => {
                     </button>
                     <button
                       className={`flex-1 py-4 px-6 text-center font-medium ${
-                        activeTab === "work"
+                        activeTab === "high"
                           ? "text-indigo-600 border-b-2 border-indigo-600"
                           : "text-gray-500 hover:text-gray-700"
                       }`}
-                      onClick={() => setActiveTab("work")}
+                      onClick={() => setActiveTab("high")}
                     >
-                      Work
+                      High
                     </button>
                     <button
                       className={`flex-1 py-4 px-6 text-center font-medium ${
@@ -351,9 +234,9 @@ const Home = () => {
                           ? "text-indigo-600 border-b-2 border-indigo-600"
                           : "text-gray-500 hover:text-gray-700"
                       }`}
-                      onClick={() => setActiveTab("personal")}
+                      onClick={() => setActiveTab("medium")}
                     >
-                      Personal
+                      Medium
                     </button>
                     <button
                       className={`flex-1 py-4 px-6 text-center font-medium ${
@@ -361,9 +244,9 @@ const Home = () => {
                           ? "text-indigo-600 border-b-2 border-indigo-600"
                           : "text-gray-500 hover:text-gray-700"
                       }`}
-                      onClick={() => setActiveTab("health")}
+                      onClick={() => setActiveTab("low")}
                     >
-                      Health
+                      Low
                     </button>
                   </div>
                 </div>
@@ -419,14 +302,14 @@ const Home = () => {
                           <div className="flex items-center mt-2 text-xs text-gray-500">
                             <span className="flex items-center">
                               <HiOutlineCalendar className="h-4 w-4 mr-1" />
-                              {task.date}
+                              {formatDate(task?.createdAt)}
                             </span>
                             <span className="mx-2">•</span>
                             <span
                               className={`px-2 py-0.5 rounded-full ${
-                                task.priority === "High"
+                                task.priority === "high"
                                   ? "bg-red-100 text-red-800"
-                                  : task.priority === "Medium"
+                                  : task.priority === "medium"
                                   ? "bg-amber-100 text-amber-800"
                                   : "bg-green-100 text-green-800"
                               }`}
@@ -437,7 +320,7 @@ const Home = () => {
                         </div>
                         <div className="flex-shrink-0 ml-4 flex items-start">
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-2 py-1 rounded-full capitalize ${
                               task.category === "Work"
                                 ? "bg-indigo-100 text-indigo-800"
                                 : task.category === "Health"
@@ -445,7 +328,7 @@ const Home = () => {
                                 : "bg-purple-100 text-purple-800"
                             }`}
                           >
-                            {task.category}
+                            {task.status}
                           </span>
                           <button className="ml-2 text-gray-400 hover:text-gray-600">
                             <HiOutlineDotsVertical className="h-5 w-5" />
@@ -579,7 +462,7 @@ const Home = () => {
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-800">
-                          {member.name} {member._id.slice(8,20)}
+                          {member.name} {member._id.slice(8, 20)}
                         </p>
                         <p className="text-xs text-gray-500">{member.email}</p>
                       </div>

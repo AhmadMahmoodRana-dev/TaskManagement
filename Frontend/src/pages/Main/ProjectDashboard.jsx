@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 import { useParams } from "react-router-dom";
 import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
-import { Context } from "../../context/Context";
 import AddTaskModal from "../../components/models/AddTaskModel";
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
@@ -13,6 +12,7 @@ const ProjectDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem("authToken");
   const { id } = useParams();
+
 
   // FETCH SINGLE PRODUCT
 
@@ -31,30 +31,26 @@ const ProjectDashboard = () => {
     } catch (error) {}
   };
 
-  
   // FETCH ALL TASKS
 
   const allProjectTasks = async () => {
     try {
-      const { data } = await axios.get(`${BASEURL}/task/project/${id}`,
-        {
-          headers:{
-            Authorization: `Bearer ${token}`,
-          }
-        }
-      );
+      const { data } = await axios.get(`${BASEURL}/task/project/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTasks(data);
     } catch (error) {
       console.error(error);
     }
   };
 
+  // USE EFFECT
 
-// USE EFFECT
-  
   useEffect(() => {
     fetchSingleProjectData();
-    allProjectTasks()
+    allProjectTasks();
   }, []);
 
   const getPriorityBadge = (priority) => {
@@ -78,7 +74,7 @@ const ProjectDashboard = () => {
       inProgress: "bg-blue-100 text-blue-800",
       pending: "bg-gray-100 text-gray-800",
       review: "bg-yellow-100 text-yellow-800",
-
+      archived: "bg-orange-100 text-orange-800",
     };
     return (
       <span
@@ -198,13 +194,13 @@ const ProjectDashboard = () => {
               <div className="flex justify-between items-center">
                 <p className="text-gray-600">In Progress</p>
                 <p className="font-medium">
-                  {tasks.filter((t) => t.status === "in-progress").length}
+                  {tasks.filter((t) => t.status === "inProgress").length}
                 </p>
               </div>
               <div className="flex justify-between items-center">
-                <p className="text-gray-600">Pending</p>
+                <p className="text-gray-600">Archieved</p>
                 <p className="font-medium">
-                  {tasks.filter((t) => t.status === "pending").length}
+                  {tasks.filter((t) => t.status === "archived").length}
                 </p>
               </div>
             </div>
@@ -216,7 +212,7 @@ const ProjectDashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">Project Tasks</h2>
             <button
-            onClick={() => setTaskOpen(!taskOpen)}
+              onClick={() => setTaskOpen(!taskOpen)}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
             >
               <svg
@@ -264,7 +260,6 @@ const ProjectDashboard = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {tasks.map((task) => {
-                  
                   return (
                     <tr key={task.id} className="hover:bg-gray-50">
                       <td className="py-4 px-4">
@@ -276,24 +271,24 @@ const ProjectDashboard = () => {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                              <span className="text-indigo-800 text-sm font-medium">
+                        <div className="flex items-center">
+                          <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                            <span className="text-indigo-800 text-sm font-medium">
                               {task?.assignedTo?.name.charAt(0)}
-                              </span>
-                            </div>
-                            <span>{task?.assignedTo?.name}</span>
+                            </span>
                           </div>
+                          <span>{task?.assignedTo?.name}</span>
+                        </div>
                       </td>
                       <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                              <span className="text-indigo-800 text-sm font-medium">
+                        <div className="flex items-center">
+                          <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                            <span className="text-indigo-800 text-sm font-medium">
                               {task?.createdBy?.name.charAt(0)}
-                              </span>
-                            </div>
-                            <span>{task?.createdBy?.name}</span>
+                            </span>
                           </div>
+                          <span>{task?.createdBy?.name}</span>
+                        </div>
                       </td>
                       <td className="py-4 px-4">
                         {getPriorityBadge(task.priority)}
@@ -302,10 +297,14 @@ const ProjectDashboard = () => {
                         {getStatusBadge(task.status)}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-gray-600">{formatDate(task.createdAt)}</span>
+                        <span className="text-gray-600">
+                          {formatDate(task.createdAt)}
+                        </span>
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-gray-600">{formatDate(task.dueDate)}</span>
+                        <span className="text-gray-600">
+                          {formatDate(task.dueDate)}
+                        </span>
                       </td>
                     </tr>
                   );
@@ -323,7 +322,12 @@ const ProjectDashboard = () => {
         />
 
         {/* Add Task Modal */}
-        <AddTaskModal setOpen={setTaskOpen} open={taskOpen} projectId={id} />
+        <AddTaskModal
+          setOpen={setTaskOpen}
+          open={taskOpen}
+          projectId={id}
+          teamMembers={project?.members}
+        />
       </div>
     </div>
   );

@@ -1,44 +1,77 @@
+import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { createContext } from "react";
 import BASEURL from "../constant/BaseUrl";
-import { useState } from "react";
-import { useEffect } from "react";
 
 export const Context = createContext();
+
 const ContextProvider = (props) => {
-  // ALL USERS
   const [teamMembers, setTeamMembers] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [token, setToken] = useState(null);
 
-  const allUsers = async () => {
-    const token = localStorage.getItem("authToken");
+  // Sync token from localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
+  // Re-check token when it changes in localStorage (after login)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken !== token) {
+        setToken(storedToken);
+      }
+    }, 1000); // check every second
+
+    return () => clearInterval(interval);
+  }, [token]);
+
+  // Trigger API calls only when token is available
+  useEffect(() => {
+    if (token) {
+      allUsers(token);
+      fetchAllProjects(token);
+    }
+  }, [token]);
+
+  // FETCH ALL USERS 
+
+  const allUsers = async (authToken) => {
     try {
       const { data } = await axios.get(`${BASEURL}/auth/allUser`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       setTeamMembers(data);
-      console.log("All Users Data:", teamMembers);
     } catch (error) {
       console.error("Error fetching all users:", error);
     }
   };
 
-  useEffect(() => {
-    allUsers();
-  }, []);
+  // FETCH ALL PROJECTS
 
-
-// CONTEXT VALUE
-
+  const fetchAllProjects = async (authToken) => {
+    try {
+      const { data } = await axios.get(`${BASEURL}/project/myprojects`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      setProjects(data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const contextValue = {
     teamMembers,
+    projects,
   };
 
   return (
-    <Context.Provider value={contextValue}>{props.children}</Context.Provider>
+    <Context.Provider value={contextValue}>
+      {props.children}
+    </Context.Provider>
   );
 };
 

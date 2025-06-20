@@ -1,15 +1,12 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { HiOutlineXMark } from "react-icons/hi2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useContext } from "react";
-import { Context } from "../../context/Context";
 import TaskSchema from "../../Schemas/TaskSchema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 
-export default function AddTaskModal({ open, setOpen, projectId }) {
+export default function AddTaskModal({ open, setOpen, projectId,teamMembers }) {
   const token = localStorage.getItem("authToken");
-  const { teamMembers } = useContext(Context);
 
   const addTask = async (formdata) => {
     try {
@@ -114,8 +111,8 @@ export default function AddTaskModal({ open, setOpen, projectId }) {
                         >
                           <option value="">Select a member</option>
                           {teamMembers?.map((team) => (
-                            <option key={team._id} value={team._id}>
-                              {team.name}
+                            <option key={team.user._id} value={team.user._id}>
+                              {team.user.name}
                             </option>
                           ))}
                         </Field>
