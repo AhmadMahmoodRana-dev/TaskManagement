@@ -138,6 +138,7 @@ export default function AddTaskModal({ open, setOpen, projectId,teamMembers }) {
                             <option value="review">Review</option>
                             <option value="completed">Completed</option>
                             <option value="archived">Archived</option>
+                            <option value="pending">Pending</option>
                           </Field>
                           <ErrorMessage
                             name="status"

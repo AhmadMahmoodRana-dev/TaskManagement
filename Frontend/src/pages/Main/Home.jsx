@@ -1,78 +1,26 @@
-import { useContext, useEffect } from "react";
+import { useContext} from "react";
 import { useState } from "react";
 import {HiOutlineBell,HiOutlineSearch,HiOutlineCalendar,HiOutlineClock,HiOutlineCheckCircle,HiOutlineDocumentText,HiOutlineDotsVertical} from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { Context } from "../../context/Context";
-import axios from "axios";
-import BASEURL from "../../constant/BaseUrl";
 import formatDate from "../../constant/FormatDate";
 
 const Home = () => {
-  const { teamMembers,projects } = useContext(Context);
-  const token = localStorage.getItem("authToken");
+  const { teamMembers,projects,tasks } = useContext(Context);
   const name = localStorage.getItem("authName");
   const [activeTab, setActiveTab] = useState("all");
-  const [showTaskDetails, setShowTaskDetails] = useState(null);
 
-  const [tasks, setTasks] = useState([]);
+ 
 
-  const allTasks = async () => {
-    try {
-      const { data } = await axios.get(`${BASEURL}/task/my`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTasks(data)
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-
-useEffect(() =>{
-  allTasks();
-},[])
-
-  const [filterOptions, setFilterOptions] = useState({
-    priority: "all",
-    status: "all",
-  });
   const [stats, setStats] = useState({
     productivity: 78,
     dailyCompleted: 12,
     weeklyGoal: 85,
   });
 
-  const toggleTaskStatus = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const filteredTasks =
-    activeTab === "all"
-      ? tasks
-      : tasks.filter((task) => task.priority.toLowerCase() === activeTab);
-
-  const pendingTasks = tasks.filter((task) => !task.completed).length;
-  const completedTasks = tasks.filter((task) => task.completed).length;
-
-  // Filter tasks based on filter options
-  const applyFilters = (tasks) => {
-    return tasks.filter((task) => {
-      const priorityMatch =
-        filterOptions.priority === "all" ||
-        task.priority === filterOptions.priority;
-      const statusMatch =
-        filterOptions.status === "all" ||
-        (filterOptions.status === "completed" && task.completed) ||
-        (filterOptions.status === "pending" && !task.completed);
-      return priorityMatch && statusMatch;
-    });
-  };
-
-  const finalTasks = applyFilters(filteredTasks);
+  const filteredTasks = activeTab === "all" ? tasks : tasks.filter((task) => task.priority.toLowerCase() === activeTab);
+  const pendingTasks = tasks.filter((task) => task.status !== "completed").length;
+  const completedTasks = tasks.filter((task) => task.status == "completed").length;
 
   // Project progress indicator
   const ProjectProgress = ({ project }) => (
@@ -252,25 +200,19 @@ useEffect(() =>{
                 </div>
 
                 <div className="divide-y divide-gray-100">
-                  {finalTasks.length > 0 ? (
-                    finalTasks.map((task) => (
+                  {filteredTasks.length > 0 ? (
+                    filteredTasks.map((task) => (
                       <div
                         key={task.id}
                         className="p-4 flex items-start hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-                        onClick={() => setShowTaskDetails(task)}
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleTaskStatus(task.id);
-                          }}
-                          className={`flex-shrink-0 h-5 w-5 mt-1 rounded-full border flex items-center justify-center ${
-                            task.completed
+                        <button className={`flex-shrink-0 h-5 w-5 mt-1 rounded-full border flex items-center justify-center ${
+                            task.status == "completed"
                               ? "bg-indigo-600 border-indigo-600"
                               : "border-gray-300"
                           }`}
                         >
-                          {task.completed && (
+                          { task.status == "completed" && (
                             <svg
                               className="h-3 w-3 text-white"
                               fill="none"
@@ -289,7 +231,7 @@ useEffect(() =>{
                         <div className="ml-3 flex-1">
                           <p
                             className={`text-sm font-medium ${
-                              task.completed
+                               task.status == "completed"
                                 ? "line-through text-gray-400"
                                 : "text-gray-800"
                             }`}
@@ -477,141 +419,6 @@ useEffect(() =>{
           </div>
         </main>
       </div>
-
-      {/* Task Detail Panel */}
-      {showTaskDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
-          <div className="bg-white w-full max-w-md h-full overflow-y-auto">
-            <div className="p-6 border-b">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-gray-800">
-                  Task Details
-                </h3>
-                <button
-                  onClick={() => setShowTaskDetails(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <button
-                    onClick={() => toggleTaskStatus(showTaskDetails.id)}
-                    className={`flex-shrink-0 h-6 w-6 rounded-full border flex items-center justify-center ${
-                      showTaskDetails.completed
-                        ? "bg-indigo-600 border-indigo-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {showTaskDetails.completed && (
-                      <svg
-                        className="h-4 w-4 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
-                  </button>
-                  <h4
-                    className={`ml-3 text-lg font-bold ${
-                      showTaskDetails.completed
-                        ? "line-through text-gray-400"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {showTaskDetails.title}
-                  </h4>
-                </div>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    showTaskDetails.category === "Work"
-                      ? "bg-indigo-100 text-indigo-800"
-                      : showTaskDetails.category === "Health"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-purple-100 text-purple-800"
-                  }`}
-                >
-                  {showTaskDetails.category}
-                </span>
-              </div>
-
-              <div className="mt-6">
-                <p className="text-gray-600">{showTaskDetails.description}</p>
-
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Due Date</p>
-                    <p className="flex items-center mt-1">
-                      <HiOutlineCalendar className="h-5 w-5 text-gray-400 mr-2" />
-                      {showTaskDetails.date}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">Priority</p>
-                    <p
-                      className={`mt-1 px-3 py-1 inline-block rounded-full text-sm ${
-                        showTaskDetails.priority === "High"
-                          ? "bg-red-100 text-red-800"
-                          : showTaskDetails.priority === "Medium"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {showTaskDetails.priority}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <p className="text-sm text-gray-500 mb-2">Assigned to</p>
-                  <div className="flex items-center">
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt="Assignee"
-                      className="h-8 w-8 rounded-full mr-2"
-                    />
-                    <span className="font-medium">Sarah Johnson</span>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex space-x-3">
-                  <button className="flex-1 bg-indigo-600 text-white py-2 rounded-lg font-medium">
-                    Edit Task
-                  </button>
-                  <button className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg font-medium">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

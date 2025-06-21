@@ -34,6 +34,7 @@ const ContextProvider = (props) => {
     if (token) {
       allUsers(token);
       fetchAllProjects(token);
+      allTasks(token)
     }
   }, [token]);
 
@@ -63,9 +64,30 @@ const ContextProvider = (props) => {
     }
   };
 
+  // FETCH MY TASKS 
+
+ const [tasks, setTasks] = useState([]);
+
+  const allTasks = async (authToken) => {
+    try {
+      const { data } = await axios.get(`${BASEURL}/task/my`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      setTasks(data)
+      console.log("I fetch SUCCESSFULLY")
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+
+
   const contextValue = {
     teamMembers,
     projects,
+    tasks,
+    allTasks
   };
 
   return (
