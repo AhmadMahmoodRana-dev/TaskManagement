@@ -87,7 +87,11 @@ const ContextProvider = (props) => {
     teamMembers,
     projects,
     tasks,
-    allTasks
+    
+    // FUNCTIONS
+    
+    allTasks,
+    fetchAllProjects
   };
 
   return (

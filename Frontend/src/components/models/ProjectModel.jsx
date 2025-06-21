@@ -4,8 +4,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import ProjectSchema from "../../Schemas/Project.schema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
+import { useContext } from "react";
+import { Context } from "../../context/Context";
 
 export default function ProjectModel({ open, setOpen }) {
+  const {fetchAllProjects} = useContext(Context)
   const token = localStorage.getItem("authToken");
 
   const AddProject = async (values) => {
@@ -17,6 +20,7 @@ export default function ProjectModel({ open, setOpen }) {
       });
       console.log(response.data);
       setOpen(false);
+      fetchAllProjects(token)
     } catch (error) {
       console.error("Error Creating Project",error)
     }

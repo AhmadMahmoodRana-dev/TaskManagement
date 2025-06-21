@@ -15,12 +15,13 @@ import { Link, useNavigate } from "react-router-dom";
 const Sidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const [activeItem, setActiveItem] = useState("Dashboard");
+  const username = localStorage.getItem("authName")
   const navigate = useNavigate();
 
   const menuItems = [
     { name: "Dashboard", icon: <HiHome size={20} />, route: "/" },
     { name: "Projects", icon: <HiFolder size={20} />, route: "add-project" },
-    { name: "Calendar", icon: <HiCalendar size={20} /> },
+    { name: "Task Board", icon: <HiCalendar size={20} />, route:"taskBoard" },
     { name: "Team", icon: <HiUserGroup size={20} /> },
     { name: "Reports", icon: <HiChartBar size={20} /> },
   ];
@@ -133,8 +134,7 @@ const Sidebar = () => {
             expanded ? "w-40" : "w-0"
           }`}
         >
-          <p className="font-medium truncate">Alex Johnson</p>
-          <p className="text-indigo-300 text-sm truncate">alex@taskflow.com</p>
+          <p className="font-medium truncate">{username}</p>
         </div>
         <button
           onClick={() => Logout()}

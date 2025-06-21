@@ -56,6 +56,7 @@ const ProjectDashboard = () => {
   const getPriorityBadge = (priority) => {
     const styles = {
       high: "bg-red-100 text-red-800",
+      critical: "bg-red-300 text-red-800",
       medium: "bg-yellow-100 text-yellow-800",
       low: "bg-green-100 text-green-800",
     };
@@ -261,7 +262,7 @@ const ProjectDashboard = () => {
               <tbody className="divide-y divide-gray-200">
                 {tasks.map((task) => {
                   return (
-                    <tr key={task.id} className="hover:bg-gray-50">
+                    <tr key={task.id} className={` ${task.priority == "critical" ? "bg-red-100" : "hover:bg-gray-50"} `}>
                       <td className="py-4 px-4">
                         <div className="font-medium text-gray-900">
                           {task.title}
@@ -327,6 +328,7 @@ const ProjectDashboard = () => {
           open={taskOpen}
           projectId={id}
           teamMembers={project?.members}
+          fetchTasks={allProjectTasks}
         />
       </div>
     </div>

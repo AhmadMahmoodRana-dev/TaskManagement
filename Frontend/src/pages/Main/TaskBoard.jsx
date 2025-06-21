@@ -1,19 +1,6 @@
-import { useContext, useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  arrayMove,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { useContext} from "react";
+import {DndContext,closestCenter,KeyboardSensor,PointerSensor,useSensor,useSensors,useDroppable} from "@dnd-kit/core";
+import {SortableContext,useSortable,verticalListSortingStrategy} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Context } from "../../context/Context";
 import axios from "axios";
@@ -171,6 +158,8 @@ export default function TaskBoard() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+        delay: 150,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor)

@@ -5,7 +5,13 @@ import TaskSchema from "../../Schemas/TaskSchema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 
-export default function AddTaskModal({ open, setOpen, projectId,teamMembers }) {
+export default function AddTaskModal({
+  open,
+  setOpen,
+  projectId,
+  teamMembers,
+  fetchTasks,
+}) {
   const token = localStorage.getItem("authToken");
 
   const addTask = async (formdata) => {
@@ -16,6 +22,7 @@ export default function AddTaskModal({ open, setOpen, projectId,teamMembers }) {
         },
       });
       console.log(response.data);
+      fetchTasks();
     } catch (error) {
       console.error(error);
     }
