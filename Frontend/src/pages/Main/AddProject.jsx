@@ -59,7 +59,7 @@ const AddProject = () => {
 
               <button
                 onClick={() => setOpen(!open)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 lg:text-md text-sm "
               >
                 <FaPlus className="mr-2" /> New Project
               </button>

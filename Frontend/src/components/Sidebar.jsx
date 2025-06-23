@@ -1,15 +1,5 @@
 import { useState } from "react";
-import {
-  HiHome,
-  HiFolder,
-  HiCalendar,
-  HiUserGroup,
-  HiCog,
-  HiChartBar,
-  HiQuestionMarkCircle,
-  HiLogout,
-  HiChevronLeft,
-} from "react-icons/hi";
+import {HiHome,HiFolder,HiCalendar,HiUserGroup,HiCog,HiChartBar,HiQuestionMarkCircle,HiLogout,HiChevronLeft} from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
@@ -45,15 +35,15 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col sticky top-0 bg-gradient-to-b from-indigo-800 to-indigo-900 text-white h-screen transition-all duration-300 ${
-        expanded ? "w-64" : "w-20"
+      className={`flex flex-col sticky top-0 bg-gradient-to-b from-indigo-800 to-indigo-900 text-white md:h-screen h-[121.4vh] transition-all duration-300 ${
+        expanded ? "md:w-64 w-20" : "w-20"
       }`}
     >
       {/* Header */}
       <div className="p-4 pb-2 flex justify-between items-center border-b border-indigo-700">
         <div
           className={`flex items-center overflow-hidden transition-all ${
-            expanded ? "w-44" : "w-0"
+            expanded ? "md:w-44 w-0" : "w-0"
           }`}
         >
           <div className="bg-white p-2 rounded-lg mr-3">
@@ -88,7 +78,7 @@ const Sidebar = () => {
                 <span className="flex-shrink-0 ml-1">{item.icon}</span>
                 <span
                   className={`ml-3 whitespace-nowrap transition-opacity ${
-                    expanded ? "opacity-100" : "opacity-0 absolute"
+                    expanded ? "md:opacity-100 opacity-0 md:relative absolute" : "opacity-0 absolute"
                   }`}
                 >
                   {item.name}
@@ -115,7 +105,7 @@ const Sidebar = () => {
                 <span className="flex-shrink-0 ml-1">{item.icon}</span>
                 <span
                   className={`ml-3 whitespace-nowrap transition-opacity ${
-                    expanded ? "opacity-100" : "opacity-0 absolute"
+                     expanded ? "md:opacity-100 opacity-0 md:relative absolute" : "opacity-0 absolute"
                   }`}
                 >
                   {item.name}
@@ -131,7 +121,7 @@ const Sidebar = () => {
         <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10 flex-shrink-0" />
         <div
           className={`ml-3 overflow-hidden transition-all ${
-            expanded ? "w-40" : "w-0"
+            expanded ? "md:w-40 w-0" : "w-0"
           }`}
         >
           <p className="font-medium truncate">{username}</p>
@@ -139,7 +129,7 @@ const Sidebar = () => {
         <button
           onClick={() => Logout()}
           className={`ml-auto p-2 rounded-lg hover:bg-indigo-700 transition-opacity ${
-            expanded ? "opacity-100" : "opacity-0 absolute"
+            expanded ? "md:opacity-100 opacity-0 md:relative absolute" : "opacity-0 absolute"
           }`}
         >
           <HiLogout size={20} />

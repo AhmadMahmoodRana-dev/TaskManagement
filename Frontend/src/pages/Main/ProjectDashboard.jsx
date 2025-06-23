@@ -13,7 +13,6 @@ const ProjectDashboard = () => {
   const token = localStorage.getItem("authToken");
   const { id } = useParams();
 
-
   // FETCH SINGLE PRODUCT
 
   const fetchSingleProjectData = async () => {
@@ -118,6 +117,16 @@ const ProjectDashboard = () => {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+        <div className="w-full flex justify-end mb-4">
+          <div className="w-[17%]">
+          <h1 className="text-gray-900 font-light italic mb-2 text-lg tracking-wider">Select Project</h1>
+            <select className="w-full py-[.4rem] px-1 border border-gray-400 rounded-md outline-none">
+              <option>data</option>
+              <option>data1</option>
+              <option>data2</option>
+            </select>
           </div>
         </div>
 
@@ -262,7 +271,14 @@ const ProjectDashboard = () => {
               <tbody className="divide-y divide-gray-200">
                 {tasks.map((task) => {
                   return (
-                    <tr key={task.id} className={` ${task.priority == "critical" ? "bg-red-100" : "hover:bg-gray-50"} `}>
+                    <tr
+                      key={task.id}
+                      className={` ${
+                        task.priority == "critical"
+                          ? "bg-red-100"
+                          : "hover:bg-gray-50"
+                      } `}
+                    >
                       <td className="py-4 px-4">
                         <div className="font-medium text-gray-900">
                           {task.title}
