@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
+import { IoMdArrowRoundForward } from "react-icons/io";
+
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
   const [taskOpen, setTaskOpen] = useState(false);
@@ -120,14 +122,13 @@ const ProjectDashboard = () => {
           </div>
         </div>
         <div className="w-full flex justify-end mb-4">
-          <div className="w-[17%]">
-          <h1 className="text-gray-900 font-light italic mb-2 text-lg tracking-wider">Select Project</h1>
-            <select className="w-full py-[.4rem] px-1 border border-gray-400 rounded-md outline-none">
-              <option>data</option>
-              <option>data1</option>
-              <option>data2</option>
-            </select>
-          </div>
+         <Link
+         to={`/chatBox/${id}`}
+          className="bg-indigo-600 text-white px-4 py-2 gap-3 cursor-pointer rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+          >
+              <IoMdArrowRoundForward/>
+              Go ChatBox
+            </Link>
         </div>
 
         {/* Project Info */}

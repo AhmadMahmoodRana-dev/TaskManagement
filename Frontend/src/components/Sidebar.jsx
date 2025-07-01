@@ -31,7 +31,7 @@ const Sidebar = () => {
     localStorage.removeItem("authId");
     localStorage.removeItem("authName");
     navigate("/login");
-  };
+  };  
 
   return (
     <div

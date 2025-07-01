@@ -70,6 +70,11 @@ projectSchema.index({ createdBy: 1 });
 projectSchema.virtual("formattedDeadline").get(function() {
   return this.deadline?.toISOString().split('T')[0];
 });
+projectSchema.virtual("chatMessages", {
+  ref: "ChatMessage",
+  localField: "_id",
+  foreignField: "project"
+});
 
 const Project = mongoose.model("Project", projectSchema);
 
