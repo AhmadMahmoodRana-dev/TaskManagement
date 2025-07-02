@@ -81,3 +81,81 @@ export const getProjectMessages = async (req, res) => {
     res.status(500).json({ error: "Server error while fetching messages" });
   }
 };
+
+
+// PUT /api/projects/:projectId/messages/:messageId
+
+export const updateProjectMessage = async (req, res) => {
+  try {
+    const { projectId, messageId } = req.params;
+    const { message } = req.body;
+    const userId = req.user?.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const chatMessage = await ChatMessage.findById(messageId);
+    if (!chatMessage) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    if (chatMessage.project.toString() !== projectId) {
+      return res.status(400).json({ error: "Message does not belong to this project" });
+    }
+
+    if (chatMessage.sender.toString() !== userId.toString()) {
+      return res.status(403).json({ error: "You can only update your own messages" });
+    }
+
+    chatMessage.message = message;
+    await chatMessage.save();
+
+    res.status(200).json({
+      success: true,
+      data: chatMessage,
+    });
+  } catch (error) {
+    console.error("Error updating message:", error);
+    res.status(500).json({ error: "Server error while updating message" });
+  }
+};
+
+// DELETE /api/projects/:projectId/messages/:messageId
+
+export const deleteProjectMessage = async (req, res) => {
+  try {
+    const { projectId, messageId } = req.params;
+    const userId = req.user?.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const chatMessage = await ChatMessage.findById(messageId);
+    if (!chatMessage) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    if (chatMessage.project.toString() !== projectId) {
+      return res.status(400).json({ error: "Message does not belong to this project" });
+    }
+
+    if (chatMessage.sender.toString() !== userId.toString()) {
+      return res.status(403).json({ error: "You can only delete your own messages" });
+    }
+
+    await chatMessage.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Message deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting message:", error);
+    res.status(500).json({ error: "Server error while deleting message" });
+  }
+};
+
