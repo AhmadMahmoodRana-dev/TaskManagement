@@ -6,9 +6,9 @@ import "dotenv/config.js";
 // REGISTER
 
 export const Register = async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword,role } = req.body;
 
-  if (!name || !email || !password || !confirmPassword) {
+  if (!name || !email || !password || !confirmPassword || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -29,7 +29,8 @@ export const Register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      username
+      username,
+      role
     });
 
     await newUser.save();
@@ -38,7 +39,7 @@ export const Register = async (req, res) => {
       .status(201)
       .json({ message: "User registered successfully", userId: newUser._id });
   } catch (error) {
-  console.error("Registration error:", error); // <--- THIS
+  console.error("Registration error:", error);
   res.status(500).json({ message: "Server error" });
 }
 };

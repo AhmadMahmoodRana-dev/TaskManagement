@@ -7,7 +7,7 @@ import { useContext } from "react";
 import { Context } from "../../context/Context";
 import AddMemberSchema from "../../Schemas/AddMember.schema";
 
-export default function AddMemberModel({ open, setOpen,projectId}) {
+export default function AddMemberModel({ open, setOpen,projectId,fetchSingleProjectData}) {
   const token = localStorage.getItem("authToken");
   const { teamMembers } = useContext(Context);
 
@@ -19,6 +19,7 @@ export default function AddMemberModel({ open, setOpen,projectId}) {
         }
       })
       setOpen(false);
+      fetchSingleProjectData();
       console.log(response.data);
     } catch (error) {
      console.error(error) 

@@ -4,9 +4,22 @@ import { Link, useNavigate } from "react-router-dom";
 import RegisterValidationSchema from "../../Schemas/Register.schema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
+import { TiTick } from "react-icons/ti";
+import { IoShieldCheckmarkOutline, IoPersonOutline } from "react-icons/io5";
+import {FaRegEyeSlash,FaEye,FaGithub,FaFacebook,FaGoogle,FaCriticalRole} from "react-icons/fa";
+import { CiLock } from "react-icons/ci";
+import { MdOutlineMailOutline } from "react-icons/md";
+
+
 const Register = () => {
-  const initialValues = {name: "",email: "",password: "",confirmPassword: ""};
-  const navigate = useNavigate()
+  const initialValues = {
+    name: "",
+    email: "",
+    role: "",
+    password: "",
+    confirmPassword: "",
+  };
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,8 +61,6 @@ const Register = () => {
     }
   };
 
-  console.log("Password Checks:", passwordStrength);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -75,7 +86,10 @@ const Register = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600 max-w">
             Already have an account?{" "}
-            <Link to={'/login'} className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              to={"/login"}
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Sign in here
             </Link>
           </p>
@@ -100,20 +114,7 @@ const Register = () => {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
+                      <IoPersonOutline color="gray" size={20} />
                     </div>
                     <Field
                       name="name"
@@ -141,21 +142,8 @@ const Register = () => {
                     Email address
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
+                    <div className="absolute inset-y-0 left-0 pl-3 mt-1 flex items-center pointer-events-none">
+                      <MdOutlineMailOutline size={20} color="gray" />
                     </div>
                     <Field
                       name="email"
@@ -174,6 +162,61 @@ const Register = () => {
                     className="text-red-500 text-sm mt-1.5 flex items-center"
                   />
                 </div>
+                <div>
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Role
+                  </label>
+
+                  <div className="relative mt-1">
+                    {/* Left icon */}
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaCriticalRole
+                        size={20}
+color="gray"
+                      />
+                    </div>
+
+                    {/* Formik Select Field */}
+                    <Field
+                      as="select"
+                      name="role"
+                      className={`block w-full appearance-none pl-10 pr-10 py-3 rounded-lg border shadow-sm text-sm bg-white ${
+                        errors.role && touched.role
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      }`}
+                    >
+                      <option value="" disabled>
+                        Select a role
+                      </option>
+                      <option value="admin">Admin</option>
+                      <option value="viewer">Viewer</option>
+                      <option value="user">User</option>
+                    </Field>
+
+                    {/* Right custom arrow icon */}
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                      <svg
+                        className="h-4 w-4 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 12a1 1 0 01-.707-.293l-3-3a1 1 0 011.414-1.414L10 9.586l2.293-2.293a1 1 0 111.414 1.414l-3 3A1 1 0 0110 12z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Formik Error Message */}
+                  <ErrorMessage
+                    name="role"
+                    component="div"
+                    className="text-red-500 text-sm mt-1.5 flex items-center"
+                  />
+                </div>
 
                 <div>
                   <label
@@ -184,20 +227,7 @@ const Register = () => {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
+                      <CiLock color="gray" size={22} />
                     </div>
                     <Field
                       name="password"
@@ -219,41 +249,9 @@ const Register = () => {
                         className="text-gray-400 hover:text-gray-500 focus:outline-none"
                       >
                         {showPassword ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                            />
-                          </svg>
+                          <FaRegEyeSlash color="gray" size={20} />
                         ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
+                          <FaEye color="gray" size={20} />
                         )}
                       </button>
                     </div>
@@ -294,20 +292,7 @@ const Register = () => {
                           }`}
                         >
                           {passwordChecks.length && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <TiTick size={22} color="#fff" />
                           )}
                         </div>
                         <span
@@ -330,20 +315,7 @@ const Register = () => {
                           }`}
                         >
                           {passwordChecks.lowercase && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <TiTick size={22} color="#fff" />
                           )}
                         </div>
                         <span
@@ -366,20 +338,7 @@ const Register = () => {
                           }`}
                         >
                           {passwordChecks.uppercase && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <TiTick size={22} color="#fff" />
                           )}
                         </div>
                         <span
@@ -402,20 +361,7 @@ const Register = () => {
                           }`}
                         >
                           {passwordChecks.number && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <TiTick size={22} color="#fff" />
                           )}
                         </div>
                         <span
@@ -438,20 +384,7 @@ const Register = () => {
                           }`}
                         >
                           {passwordChecks.specialChar && (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <TiTick size={22} color="#fff" />
                           )}
                         </div>
                         <span
@@ -477,20 +410,7 @@ const Register = () => {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                        />
-                      </svg>
+                      <IoShieldCheckmarkOutline color="gray" size={20} />
                     </div>
                     <Field
                       name="confirmPassword"
@@ -510,41 +430,9 @@ const Register = () => {
                         className="text-gray-400 hover:text-gray-500 focus:outline-none"
                       >
                         {showConfirmPassword ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                            />
-                          </svg>
+                          <FaRegEyeSlash color="gray" size={20} />
                         ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
+                          <FaEye color="gray" size={20} />
                         )}
                       </button>
                     </div>
@@ -610,37 +498,19 @@ const Register = () => {
             <div className="mt-6 grid grid-cols-3 gap-3">
               <div>
                 <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <FaGithub size={22} color="gray" />
                 </button>
               </div>
 
               <div>
                 <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
-                  </svg>
+                  <FaFacebook size={22} color="gray" />
                 </button>
               </div>
 
               <div>
                 <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z" />
-                  </svg>
+                  <FaGoogle size={22} color="gray" />
                 </button>
               </div>
             </div>

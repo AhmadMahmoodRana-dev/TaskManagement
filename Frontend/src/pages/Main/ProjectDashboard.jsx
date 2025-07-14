@@ -337,6 +337,7 @@ const ProjectDashboard = () => {
           setOpen={setMemberOpen}
           open={memberOpen}
           projectId={id}
+          fetchSingleProjectData={fetchSingleProjectData}
         />
 
         {/* Add Task Modal */}

@@ -13,6 +13,8 @@ import ChatBox from "./pages/Main/ChatBox";
 
 const App = () => {
   const navigate = useNavigate();
+  const currentHost = window.location.host; // includes port, like "localhost:5174"
+  const isRegisterAllowed = currentHost === "localhost:5173";
 
   useEffect(() => {
     const expiry = localStorage.getItem("tokenExpiry");
@@ -21,7 +23,7 @@ const App = () => {
       localStorage.removeItem("authToken");
       localStorage.removeItem("tokenExpiry");
       localStorage.removeItem("authId");
-        localStorage.removeItem("authName");
+      localStorage.removeItem("authName");
       console.log("Token expired. Logging out.");
       navigate("/login");
     }
@@ -30,9 +32,12 @@ const App = () => {
     <>
       <Routes>
         <Route element={<PublicRoutes />}>
-          <Route path="/register" element={<Register />} />
+          {isRegisterAllowed && (
+            <Route path="/register" element={<Register />} />
+          )}
           <Route path="/login" element={<Login />} />
         </Route>
+
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<Home />} />
           <Route path="/project-dashboard/:id" element={<ProjectDashboard />} />
