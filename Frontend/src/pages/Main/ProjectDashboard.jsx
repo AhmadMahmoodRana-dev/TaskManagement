@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
-import { IoMdArrowRoundForward } from "react-icons/io";
+import { IoMdArrowRoundForward, IoMdAddCircleOutline } from "react-icons/io";
 
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
@@ -13,7 +13,10 @@ const ProjectDashboard = () => {
   const [project, setProject] = useState({});
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem("authToken");
+  const [userRole, setUserRole] = useState({});
   const { id } = useParams();
+
+  console.log;
 
   // FETCH SINGLE PRODUCT
 
@@ -47,11 +50,31 @@ const ProjectDashboard = () => {
     }
   };
 
+  // FETCH USER ROLE
+
+  const currentUserRole = async () => {
+    try {
+      const { data } = await axios.get(
+        `${BASEURL}/project/getProjectMemberRole/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUserRole(data);
+      console.log("Cureent User Data", data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // USE EFFECT
 
   useEffect(() => {
     fetchSingleProjectData();
     allProjectTasks();
+    currentUserRole();
   }, []);
 
   const getPriorityBadge = (priority) => {
@@ -122,13 +145,13 @@ const ProjectDashboard = () => {
           </div>
         </div>
         <div className="w-full flex justify-end mb-4">
-         <Link
-         to={`/chatBox/${id}`}
-          className="bg-indigo-600 text-white px-4 py-2 gap-3 cursor-pointer rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+          <Link
+            to={`/chatBox/${id}`}
+            className="bg-indigo-600 text-white px-4 py-2 gap-3 cursor-pointer rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
           >
-              <IoMdArrowRoundForward/>
-              Go ChatBox
-            </Link>
+            <IoMdArrowRoundForward />
+            Go ChatBox
+          </Link>
         </div>
 
         {/* Project Info */}
@@ -160,12 +183,17 @@ const ProjectDashboard = () => {
               <h3 className="text-lg font-semibold text-gray-800">
                 Team Members
               </h3>
-              <button
-                onClick={() => setMemberOpen(!memberOpen)}
-                className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-indigo-700 transition-colors"
-              >
-                Add Member
-              </button>
+              {userRole?.role == "developer" ? (
+                ""
+              ) : (
+                <button
+                  onClick={() => setMemberOpen(!memberOpen)}
+                  className="bg-indigo-600 text-white gap-2 px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+                >
+                  <IoMdAddCircleOutline size={22} />
+                  Add Member
+                </button>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -222,24 +250,17 @@ const ProjectDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">Project Tasks</h2>
-            <button
-              onClick={() => setTaskOpen(!taskOpen)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+            {userRole?.role == "developer" ? (
+              ""
+            ) : (
+              <button
+                onClick={() => setTaskOpen(!taskOpen)}
+                className="bg-indigo-600 text-white gap-2 px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
               >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Add Task
-            </button>
+                <IoMdAddCircleOutline size={22} />
+                Add Task
+              </button>
+            )}
           </div>
 
           <div className="overflow-x-auto">

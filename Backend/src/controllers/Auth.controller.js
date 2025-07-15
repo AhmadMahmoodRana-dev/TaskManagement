@@ -6,7 +6,7 @@ import "dotenv/config.js";
 // REGISTER
 
 export const Register = async (req, res) => {
-  const { name, email, password, confirmPassword,role } = req.body;
+  const { name, email, password, confirmPassword, role } = req.body;
 
   if (!name || !email || !password || !confirmPassword || !role) {
     return res.status(400).json({ message: "All fields are required" });
@@ -30,7 +30,7 @@ export const Register = async (req, res) => {
       email,
       password: hashedPassword,
       username,
-      role
+      role,
     });
 
     await newUser.save();
@@ -39,9 +39,9 @@ export const Register = async (req, res) => {
       .status(201)
       .json({ message: "User registered successfully", userId: newUser._id });
   } catch (error) {
-  console.error("Registration error:", error);
-  res.status(500).json({ message: "Server error" });
-}
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // LOGIN
@@ -82,6 +82,7 @@ export const Login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -101,12 +102,11 @@ export const FetchAllUsers = async (req, res) => {
   }
 };
 
-
 // UPDATE PROFILE
 
 export const updateProfile = async (req, res) => {
   try {
-    console.log("🧾 Received Form Data:", req.body); 
+    console.log("🧾 Received Form Data:", req.body);
     console.log("🔐 Authenticated User:", req.user);
 
     const userId = req.user?.userId;
@@ -147,7 +147,6 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-
 // GET PROFILE
 
 export const getProfile = async (req, res) => {
@@ -166,8 +165,6 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 // LOGOUT
 

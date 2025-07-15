@@ -18,12 +18,14 @@ const Login = () => {
     });
 
     const { token, user } = response.data;
+    console.log("SINGLE USER",user)
 
     if (token) {
       // 1. Save token and expiry time
       localStorage.setItem("authToken", token);
       localStorage.setItem("authId", user?.id);
       localStorage.setItem("authName", user?.name);
+      localStorage.setItem("role", user?.role);
       const expiry = Date.now() + 30 * 60 * 1000; // 30 minutes
       localStorage.setItem("tokenExpiry", expiry.toString());
 
@@ -32,6 +34,7 @@ const Login = () => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("authId");
         localStorage.removeItem("authName");
+        localStorage.removeItem("role");
         localStorage.removeItem("tokenExpiry");
         alert("Session expired. Please login again.");
         window.location.reload(); // or navigate to login page

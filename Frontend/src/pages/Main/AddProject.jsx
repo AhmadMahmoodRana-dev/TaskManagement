@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {FaPlus,FaSearch,FaUserFriends,FaUserCog,FaCode,FaEye} from "react-icons/fa";
 import ProjectModel from "../../components/models/ProjectModel";
 import { Link } from "react-router-dom";
@@ -6,15 +6,18 @@ import { useDebouncedSearch } from "../../hooks/useDebouncedSearch";
 import { Context } from "../../context/Context";
 
 const AddProject = () => {
-  const {projects} = useContext(Context)
+  const { projects } = useContext(Context);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedQuery = useDebouncedSearch(searchTerm, 700);
 
+  const role = localStorage.getItem("role");
 
   const filteredProjects = projects?.filter(
     (project) =>
       project?.name?.toLowerCase()?.includes(debouncedQuery.toLowerCase()) ||
-      project?.description?.toLowerCase()?.includes(debouncedQuery.toLowerCase())
+      project?.description
+        ?.toLowerCase()
+        ?.includes(debouncedQuery.toLowerCase())
   );
 
   const getRoleIcon = (role) => {
@@ -56,13 +59,16 @@ const AddProject = () => {
                 />
                 <FaSearch className="absolute left-3 top-3 text-gray-400" />
               </div>
-
-              <button
-                onClick={() => setOpen(!open)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 lg:text-md text-sm "
-              >
-                <FaPlus className="mr-2" /> New Project
-              </button>
+              {role == "admin" ? (
+                <button
+                  onClick={() => setOpen(!open)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 lg:text-md text-sm "
+                >
+                  <FaPlus className="mr-2" /> New Project
+                </button>
+              ) : (
+                ""
+              )}
             </div>
           </div>
 
@@ -100,24 +106,27 @@ const AddProject = () => {
                     <div className="flex flex-wrap gap-2">
                       {project.members.map((member, index) => (
                         <>
-                        <div
-                          key={index}
-                          className="flex items-center bg-gray-50 rounded-full px-3 pb-5 text-sm"
-                          title={`${member.user.name} (${member.role})`}
-                        >
-                          <span className="mr-2">
-                            {getRoleIcon(member.role)}
-                          </span>
-                          <span className="text-gray-700 truncate max-w-[80px]">
-                            {member.user.name}
-                          </span>
-                        </div>
+                          <div
+                            key={index}
+                            className="flex items-center bg-gray-50 rounded-full px-3 pb-5 text-sm"
+                            title={`${member.user.name} (${member.role})`}
+                          >
+                            <span className="mr-2">
+                              {getRoleIcon(member.role)}
+                            </span>
+                            <span className="text-gray-700 truncate max-w-[80px]">
+                              {member.user.name}
+                            </span>
+                          </div>
                         </>
                       ))}
                     </div>
                   </div>
 
-                  <Link to={`/project-dashboard/${project?._id}`} className="mt-10 px-3 w-full bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition duration-300">
+                  <Link
+                    to={`/project-dashboard/${project?._id}`}
+                    className="mt-10 px-3 w-full bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition duration-300"
+                  >
                     View Project Details
                   </Link>
                 </div>

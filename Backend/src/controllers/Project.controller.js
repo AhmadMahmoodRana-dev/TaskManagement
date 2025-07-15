@@ -1,5 +1,9 @@
 import Project from "../schema/Project.schema.js";
 
+
+
+// #################################################################################################################################
+
 // Create a new project
 
 export const CreateProject = async (req,res) => {
@@ -37,6 +41,10 @@ export const CreateProject = async (req,res) => {
   }
 };
 
+// #################################################################################################################################
+
+
+
 // Add member to project
 
 export const addMember = async (req,res) =>{
@@ -61,7 +69,7 @@ export const addMember = async (req,res) =>{
       user: userId,
       role,
     });
-
+    
     await project.save();
 
     res.json({
@@ -75,6 +83,13 @@ export const addMember = async (req,res) =>{
     });
   }
 }
+
+
+
+
+// #################################################################################################################################
+
+
 
 // Update project progress
 
@@ -109,6 +124,9 @@ try {
   }
 }
 
+
+// #################################################################################################################################
+
 // Get project details
 
 export const  getProjectDetail = async (req,res) =>{
@@ -130,6 +148,10 @@ export const  getProjectDetail = async (req,res) =>{
     });
   }
 }
+
+
+
+// #################################################################################################################################
 
 // Update project status
 
@@ -163,6 +185,9 @@ try {
 }
 
 
+
+// #################################################################################################################################
+
 // Get all projects where user is owner or manager
 
 export const getMyProjects = async (req, res) => {
@@ -173,7 +198,7 @@ export const getMyProjects = async (req, res) => {
       members: {
         $elemMatch: {
           user: userId,
-          role: { $in: ["owner", "manager"] },
+          role: { $in: ["owner", "manager","developer"] },
         },
       },
     })
@@ -190,4 +215,31 @@ export const getMyProjects = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+
+
+// #################################################################################################################################
+
+
+export const getProjectMemberRole = async (req, res) => {
+  const userId = req.user?.userId; 
+  const projectId = req.params.projectId;
+
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    return res.status(404).json({ message: "Project not found" });
+  }
+
+  const member = project.members.find((m) => m.user.toString() === userId);
+
+  if (!member) {
+    return res.status(403).json({ message: "You are not a member of this project" });
+  }
+
+  return res.status(200).json({
+    role: member.role,
+    userId: member.user,
+  });
 };
