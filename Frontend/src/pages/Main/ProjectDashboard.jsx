@@ -6,6 +6,7 @@ import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
 import { IoMdArrowRoundForward, IoMdAddCircleOutline } from "react-icons/io";
+import { MdDeleteOutline, MdEdit } from "react-icons/md";
 
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
@@ -13,10 +14,15 @@ const ProjectDashboard = () => {
   const [project, setProject] = useState({});
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem("authToken");
+  const name = localStorage.getItem("authName");
   const [userRole, setUserRole] = useState({});
+  const [taskId,setTaskId] = useState("")
   const { id } = useParams();
 
-  console.log;
+  const OpenEditForm = (id) =>{
+    setTaskId(id)
+    setTaskOpen(!taskOpen)
+  }
 
   // FETCH SINGLE PRODUCT
 
@@ -69,6 +75,20 @@ const ProjectDashboard = () => {
     }
   };
 
+  // DELETE TASK
+
+  const deleteTask = async (taskID) => {
+    try {
+      const response = await axios.delete(`${BASEURL}/task/${taskID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log(response);
+      allProjectTasks();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // USE EFFECT
 
   useEffect(() => {
@@ -76,6 +96,9 @@ const ProjectDashboard = () => {
     allProjectTasks();
     currentUserRole();
   }, []);
+  {
+    /* /task/:taskId */
+  }
 
   const getPriorityBadge = (priority) => {
     const styles = {
@@ -340,11 +363,26 @@ const ProjectDashboard = () => {
                           {formatDate(task.createdAt)}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-4">
                         <span className="text-gray-600">
                           {formatDate(task.dueDate)}
                         </span>
                       </td>
+                      {name == task?.createdBy?.name && (
+                        <td className="py-4 ">
+                          <span className="text-gray-600 flex justify-center">
+                            <button
+                              onClick={() => deleteTask(task?.id)}
+                              className="cursor-pointer hover:text-red-600 transition-all duration-700 ease-in-out"
+                            >
+                              <MdDeleteOutline size={20} />
+                            </button>
+                            <button onClick={() => OpenEditForm(task?.id)} className="cursor-pointer hover:text-green-600 transition-all duration-700 ease-in-out">
+                              <MdEdit size={20} />
+                            </button>
+                          </span>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -368,6 +406,8 @@ const ProjectDashboard = () => {
           projectId={id}
           teamMembers={project?.members}
           fetchTasks={allProjectTasks}
+          taskId={taskId}
+          setTaskId={setTaskId}
         />
       </div>
     </div>

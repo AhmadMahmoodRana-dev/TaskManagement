@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import TaskSchema from "../../Schemas/TaskSchema";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
+import { useEffect, useState } from "react";
 
 export default function AddTaskModal({
   open,
@@ -11,8 +12,15 @@ export default function AddTaskModal({
   projectId,
   teamMembers,
   fetchTasks,
+  taskId,
+  setTaskId
 }) {
   const token = localStorage.getItem("authToken");
+  const [singleTaskData, setSingleTaskData] = useState({});
+
+  console.log(singleTaskData, "singleTaskDatasingleTaskData");
+
+  // ADD TASK
 
   const addTask = async (formdata) => {
     try {
@@ -27,6 +35,49 @@ export default function AddTaskModal({
       console.error(error);
     }
   };
+  // UPDATE TASK
+
+  const UpdateTask = async (formdata) => {
+    try {
+      const response = await axios.put(
+        `${BASEURL}/task/update/${taskId}`,
+        formdata,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data);
+      fetchTasks();
+      setOpen(!open);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // SINGLE TASK DATA
+
+  const getSingleTaskData = async () => {
+    try {
+      const { data } = await axios.get(`${BASEURL}/task/${taskId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSingleTaskData(data);
+      console.log(data, "singleTASK DATA");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!taskId) {
+      setSingleTaskData({});
+      setTaskId(null)
+    } else {
+      getSingleTaskData();
+    }
+  }, [taskId]);
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -54,20 +105,24 @@ export default function AddTaskModal({
               <div className="w-full">
                 <h2 className="text-xl font-semibold mb-4">Create New Task</h2>
                 <Formik
+                  enableReinitialize
                   initialValues={{
-                    title: "",
-                    description: "",
+                    title: singleTaskData?.title || "",
+                    description: singleTaskData?.description || "",
                     project: projectId,
-                    assignedTo: "",
-                    status: "todo",
-                    priority: "medium",
-                    dueDate: "",
-                    estimatedHours: 0,
+                    assignedTo: singleTaskData?.assignedTo || "",
+                    status: singleTaskData?.status || "todo",
+                    priority: singleTaskData?.priority || "medium",
+                    dueDate: singleTaskData?.dueDate?.split("T")[0] || "",
+                    estimatedHours: singleTaskData?.estimatedHours || 0,
                   }}
                   validationSchema={TaskSchema}
                   onSubmit={(values, { resetForm }) => {
-                    addTask(values);
+                    taskId ? UpdateTask(values) : addTask(values);
                     resetForm();
+                    setSingleTaskData({});
+                    setTaskId(null)
+                    setOpen(false);
                   }}
                 >
                   {({ isSubmitting }) => (
@@ -212,13 +267,23 @@ export default function AddTaskModal({
                       </div>
 
                       <div>
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                        >
-                          Create Task
-                        </button>
+                        {!taskId ? (
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                          >
+                            Create Task
+                          </button>
+                        ) : (
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                          >
+                            Update Task
+                          </button>
+                        )}
                       </div>
                     </Form>
                   )}

@@ -6,7 +6,7 @@ import { Context } from "../../context/Context";
 import formatDate from "../../constant/FormatDate";
 
 const Home = () => {
-  const { teamMembers,projects,tasks } = useContext(Context);
+  const {projects,tasks } = useContext(Context);
   const name = localStorage.getItem("authName");
   const [activeTab, setActiveTab] = useState("all");
 
@@ -373,44 +373,6 @@ const Home = () => {
                         </span>
                       </div>
                       <ProjectProgress project={project} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Team Members */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-800">
-                    Team Members
-                  </h3>
-                  <button className="text-indigo-600 text-sm font-medium">
-                    View All
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {teamMembers.map((member) => (
-                    <div key={member.id} className="flex items-center">
-                      <div className="relative">
-                        <img
-                          src="https://img.freepik.com/premium-photo/men-design-logo-avatar_665280-69427.jpg?ga=GA1.1.917450233.1745315446&semt=ais_hybrid&w=740"
-                          alt={member.name}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                        {member.online && (
-                          <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></div>
-                        )}
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-800">
-                          {member.name} {member._id.slice(8, 20)}
-                        </p>
-                        <p className="text-xs text-gray-500">{member.email}</p>
-                      </div>
-                      <button className="ml-auto text-indigo-600 text-sm font-medium">
-                        Message
-                      </button>
                     </div>
                   ))}
                 </div>

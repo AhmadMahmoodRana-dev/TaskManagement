@@ -9,7 +9,7 @@ TaskRoute.post("/task", authenticateToken, createTask);
 TaskRoute.get("/task/my", authenticateToken, getMyTasks);
 TaskRoute.get("/task/:taskId", authenticateToken, getTaskById);
 TaskRoute.get("/task/project/:projectId", authenticateToken, getTasksByProject);
-TaskRoute.put("/task/:taskId", authenticateToken, updateTask);
+TaskRoute.put("/task/update/:taskId", authenticateToken, updateTask);
 TaskRoute.delete("/task/:taskId", authenticateToken, deleteTask);
 
 export default TaskRoute;
