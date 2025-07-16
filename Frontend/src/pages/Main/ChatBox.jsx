@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import {useState, useEffect, useRef} from "react";
 import BASEURL from "../../constant/BaseUrl";
-import { useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 import axios from "axios";
-import { MdOutlineAttachEmail,MdEmojiEmotions,MdSend  } from "react-icons/md";
-
+import {MdOutlineAttachEmail, MdEmojiEmotions, MdSend,MdAttachFile} from "react-icons/md";
+import {FaMicrophone, FaStop, FaFileUpload, FaTrash} from "react-icons/fa";
 
 const ChatBox = () => {
   const { projectId } = useParams();
@@ -12,6 +12,15 @@ const ChatBox = () => {
   const authId = localStorage.getItem("authId");
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editText, setEditText] = useState("");
+
+  // For file upload
+  const [file, setFile] = useState(null);
+  // For voice recording
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const fileInputRef = useRef(null);
 
   // SINGLE PROJECT DETAIL
   const fetchSingleProjectData = async () => {
@@ -40,22 +49,41 @@ const ChatBox = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && !file && !audioBlob) return;
 
     try {
+      const formData = new FormData();
+      
+      if (file) {
+        formData.append("file", file);
+        formData.append("type", "file");
+      } else if (audioBlob) {
+        const audioFile = new File([audioBlob], "voice-message.webm", {
+          type: "audio/webm"
+        });
+        formData.append("file", audioFile);
+        formData.append("type", "voice");
+      } else {
+        formData.append("message", newMessage);
+        formData.append("type", "text");
+      }
+
       await axios.post(
         `${BASEURL}/project/${projectId}/messages`,
-        {
-          message: newMessage,
-        },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-      fetchMessages();
+
+      // Reset states
       setNewMessage("");
+      setFile(null);
+      setAudioBlob(null);
+      fetchMessages();
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -135,10 +163,89 @@ const ChatBox = () => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  // File input change handler
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setAudioBlob(null);
+    }
+  };
+
+  // Start voice recording
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        setFile(null);
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error starting recording:", err);
+      alert("Microphone access is required for voice messages");
+    }
+  };
+
+  // Stop voice recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
+  // Render attachment preview
+  const renderAttachmentPreview = () => {
+    if (file) {
+      return (
+        <div className="flex items-center justify-between p-2 bg-indigo-50 rounded-lg mb-2">
+          <div className="flex items-center">
+            <MdAttachFile className="text-indigo-600 mr-2" />
+            <span className="truncate max-w-xs">{file.name}</span>
+          </div>
+          <button 
+            onClick={() => setFile(null)}
+            className="ml-2 text-red-500 hover:text-red-700"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      );
+    }
+
+    if (audioBlob) {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      return (
+        <div className="flex items-center justify-between p-2 bg-indigo-50 rounded-lg mb-2">
+          <audio controls src={audioUrl} className="w-full" />
+          <button 
+            onClick={() => setAudioBlob(null)}
+            className="ml-2 text-red-500 hover:text-red-700"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="flex h-screen w-full bg-gradient-to-br from-indigo-50 to-purple-50 ">
       <div className="flex flex-col w-full mx-auto bg-white shadow-xl overflow-hidden">
-        {/* Header */}
         <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
@@ -148,14 +255,10 @@ const ChatBox = () => {
                 <p>online now</p>
               </div>
             </div>
-            <div className="flex space-x-2">
-              {/* Header buttons remain unchanged */}
-            </div>
           </div>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Online Users Panel */}
           <div className="hidden md:block w-80 border-[#352ba1] border-r-8 rounded-se-xl p-4 overflow-y-auto">
             <h2 className="text-lg font-semibold text-indigo-900 mb-4">
               Team Members
@@ -188,9 +291,7 @@ const ChatBox = () => {
             </div>
           </div>
 
-          {/* Chat Area */}
           <div className="flex flex-col flex-1">
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
               <div className="max-w-3xl mx-auto">
                 {messages.map((message) => (
@@ -208,7 +309,6 @@ const ChatBox = () => {
 
                     <div className="relative group">
                       {editingMessageId === message._id ? (
-                        // Edit Mode UI
                         <div className="bg-white p-3 rounded-xl shadow-lg border border-indigo-200">
                           <textarea
                             value={editText}
@@ -233,7 +333,6 @@ const ChatBox = () => {
                           </div>
                         </div>
                       ) : (
-                        // Normal Message Display
                         <div
                           className={`max-w-xs md:max-w-md rounded-2xl px-4 py-3 relative ${
                             message?.sender?._id == authId
@@ -246,7 +345,26 @@ const ChatBox = () => {
                               {message?.sender?.name}
                             </p>
                           )}
-                          <p>{message?.message}</p>
+                          
+                          {message.type === "text" ? (
+                            <p>{message.message}</p>
+                          ) : message.type === "file" ? (
+                            <a 
+                              href={message.fileUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center text-indigo-300 hover:text-indigo-100 underline"
+                            >
+                              <MdAttachFile className="mr-1" />
+                              {message.fileName || "Download file"}
+                            </a>
+                          ) : (
+                            <audio controls className="w-48 md:w-64 mt-2">
+                              <source src={message.fileUrl} type={message.fileType} />
+                              Your browser does not support audio playback.
+                            </audio>
+                          )}
+                          
                           <p
                             className={`text-xs mt-1 text-right ${
                               message?.sender?._id == authId
@@ -257,8 +375,7 @@ const ChatBox = () => {
                             {formatTime(message?.timestamp)}
                           </p>
 
-                          {/* Edit/Delete Buttons (only for current user's messages) */}
-                          {message?.sender?._id == authId && (
+                          {message?.sender?._id == authId && message.type === "text" && (
                             <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1 bg-white rounded-full p-1 shadow-md">
                               <button
                                 onClick={() => handleStartEdit(message)}
@@ -309,22 +426,39 @@ const ChatBox = () => {
               </div>
             </div>
 
-            {/* Input Area */}
             <div className="border-t border-gray-200 p-4 bg-white">
+              {renderAttachmentPreview()}
               <form onSubmit={handleSendMessage} className="flex items-center">
                 <div className="flex-1 flex items-center bg-gray-100 rounded-full px-4 py-2 mr-3">
                   <button
                     type="button"
+                    onClick={() => fileInputRef.current.click()}
                     className="text-gray-500 hover:text-gray-700 mr-2 flex justify-center items-center"
                   >
-                    <MdOutlineAttachEmail size={20} />
+                    <MdAttachFile size={20} />
                   </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className={`mr-2 ${isRecording ? "text-red-500 animate-pulse" : "text-gray-500 hover:text-gray-700"}`}
+                  >
+                    {isRecording ? <FaStop size={18} /> : <FaMicrophone size={18} />}
+                  </button>
+                  
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
                     className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0"
+                    disabled={isRecording}
                   />
                   <button
                     type="button"
