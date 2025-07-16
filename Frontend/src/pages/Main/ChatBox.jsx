@@ -1,9 +1,14 @@
-import {useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import BASEURL from "../../constant/BaseUrl";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import {MdOutlineAttachEmail, MdEmojiEmotions, MdSend,MdAttachFile} from "react-icons/md";
-import {FaMicrophone, FaStop, FaFileUpload, FaTrash} from "react-icons/fa";
+import {
+  MdOutlineAttachEmail,
+  MdEmojiEmotions,
+  MdSend,
+  MdAttachFile,
+} from "react-icons/md";
+import { FaMicrophone, FaStop, FaFileUpload, FaTrash } from "react-icons/fa";
 
 const ChatBox = () => {
   const { projectId } = useParams();
@@ -53,13 +58,13 @@ const ChatBox = () => {
 
     try {
       const formData = new FormData();
-      
+
       if (file) {
         formData.append("file", file);
         formData.append("type", "file");
       } else if (audioBlob) {
         const audioFile = new File([audioBlob], "voice-message.webm", {
-          type: "audio/webm"
+          type: "audio/webm",
         });
         formData.append("file", audioFile);
         formData.append("type", "voice");
@@ -68,16 +73,12 @@ const ChatBox = () => {
         formData.append("type", "text");
       }
 
-      await axios.post(
-        `${BASEURL}/project/${projectId}/messages`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`${BASEURL}/project/${projectId}/messages`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       // Reset states
       setNewMessage("");
@@ -111,9 +112,12 @@ const ChatBox = () => {
   // DELETE MESSAGE
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${BASEURL}/projects/${projectId}/messages/${messageId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${BASEURL}/projects/${projectId}/messages/${messageId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchMessages();
     } catch (error) {
       console.error("Error deleting message:", error);
@@ -184,7 +188,9 @@ const ChatBox = () => {
       };
 
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
         setAudioBlob(audioBlob);
         setFile(null);
       };
@@ -199,10 +205,15 @@ const ChatBox = () => {
 
   // Stop voice recording
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
     }
   };
 
@@ -215,7 +226,7 @@ const ChatBox = () => {
             <MdAttachFile className="text-indigo-600 mr-2" />
             <span className="truncate max-w-xs">{file.name}</span>
           </div>
-          <button 
+          <button
             onClick={() => setFile(null)}
             className="ml-2 text-red-500 hover:text-red-700"
           >
@@ -230,7 +241,7 @@ const ChatBox = () => {
       return (
         <div className="flex items-center justify-between p-2 bg-indigo-50 rounded-lg mb-2">
           <audio controls src={audioUrl} className="w-full" />
-          <button 
+          <button
             onClick={() => setAudioBlob(null)}
             className="ml-2 text-red-500 hover:text-red-700"
           >
@@ -345,13 +356,13 @@ const ChatBox = () => {
                               {message?.sender?.name}
                             </p>
                           )}
-                          
+
                           {message.type === "text" ? (
                             <p>{message.message}</p>
                           ) : message.type === "file" ? (
-                            <a 
-                              href={message.fileUrl} 
-                              target="_blank" 
+                            <a
+                              href={message.fileUrl}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center text-indigo-300 hover:text-indigo-100 underline"
                             >
@@ -360,11 +371,14 @@ const ChatBox = () => {
                             </a>
                           ) : (
                             <audio controls className="w-48 md:w-64 mt-2">
-                              <source src={message.fileUrl} type={message.fileType} />
+                              <source
+                                src={message.fileUrl}
+                                type={message.fileType}
+                              />
                               Your browser does not support audio playback.
                             </audio>
                           )}
-                          
+
                           <p
                             className={`text-xs mt-1 text-right ${
                               message?.sender?._id == authId
@@ -375,27 +389,29 @@ const ChatBox = () => {
                             {formatTime(message?.timestamp)}
                           </p>
 
-                          {message?.sender?._id == authId && message.type === "text" && (
+                          {message?.sender?._id == authId && (
                             <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1 bg-white rounded-full p-1 shadow-md">
-                              <button
-                                onClick={() => handleStartEdit(message)}
-                                className="p-1 text-gray-600 hover:text-indigo-600 rounded-full hover:bg-indigo-50"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
+                              {message.type === "text" && (
+                                <button
+                                  onClick={() => handleStartEdit(message)}
+                                  className="p-1 text-gray-600 hover:text-indigo-600 rounded-full hover:bg-indigo-50"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                  />
-                                </svg>
-                              </button>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
+                                  </svg>
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleDeleteMessage(message._id)}
                                 className="p-1 text-gray-600 hover:text-red-600 rounded-full hover:bg-red-50"
@@ -443,15 +459,23 @@ const ChatBox = () => {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  
+
                   <button
                     type="button"
                     onClick={isRecording ? stopRecording : startRecording}
-                    className={`mr-2 ${isRecording ? "text-red-500 animate-pulse" : "text-gray-500 hover:text-gray-700"}`}
+                    className={`mr-2 ${
+                      isRecording
+                        ? "text-red-500 animate-pulse"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
                   >
-                    {isRecording ? <FaStop size={18} /> : <FaMicrophone size={18} />}
+                    {isRecording ? (
+                      <FaStop size={18} />
+                    ) : (
+                      <FaMicrophone size={18} />
+                    )}
                   </button>
-                  
+
                   <input
                     type="text"
                     value={newMessage}

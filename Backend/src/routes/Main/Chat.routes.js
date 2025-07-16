@@ -7,11 +7,22 @@ import {
   updateProjectMessage,
 } from "../../controllers/Chat.controller.js";
 import multer from "multer";
+import fs from "fs";
+import path from "path";
+
 const chatRoute = Router();
 
+// Setup multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    const uploadDir = path.join("uploads");
+
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -26,7 +37,7 @@ const upload = multer({
   },
 });
 
-// Apply to your message route
+// Routes
 chatRoute.post(
   "/project/:projectId/messages",
   upload.single("file"),
@@ -34,17 +45,18 @@ chatRoute.post(
   addProjectMessage
 );
 
-// chatRoute.post("/project/:projectId/messages", authenticateToken, addProjectMessage);
 chatRoute.get(
   "/projects/:projectId/messages",
   authenticateToken,
   getProjectMessages
 );
+
 chatRoute.put(
   "/projects/:projectId/messages/:messageId",
   authenticateToken,
   updateProjectMessage
 );
+
 chatRoute.delete(
   "/projects/:projectId/messages/:messageId",
   authenticateToken,

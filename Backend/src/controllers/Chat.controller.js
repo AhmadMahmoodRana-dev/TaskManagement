@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 import ChatMessage from "../schema/ChatMessage.schema.js";
 import Project from "../schema/Project.schema.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // POST /api/project/:projectId/messages
 export const addProjectMessage = async (req, res) => {
@@ -19,12 +23,14 @@ export const addProjectMessage = async (req, res) => {
     if (!project) return res.status(404).json({ error: "Project not found" });
 
     if (!Array.isArray(project.members)) {
-      return res.status(400).json({ error: "Project members not defined properly" });
+      return res
+        .status(400)
+        .json({ error: "Project members not defined properly" });
     }
 
     // Safe member check using equals()
-    const isMember = project.members.some(member => 
-      member?.user && member.user.equals(userId)
+    const isMember = project.members.some(
+      (member) => member?.user && member.user.equals(userId)
     );
 
     if (!isMember) {
@@ -50,7 +56,7 @@ export const addProjectMessage = async (req, res) => {
       }
 
       const fileTypeDir = type === "voice" ? "voice_messages" : "documents";
-      const uploadDir = path.join("uploads", fileTypeDir);
+      const uploadDir = path.join(__dirname, "..", "uploads", fileTypeDir);
 
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -59,9 +65,16 @@ export const addProjectMessage = async (req, res) => {
       const newPath = path.join(uploadDir, req.file.filename);
       fs.renameSync(req.file.path, newPath);
 
-      newMessage.fileUrl = `/uploads/${fileTypeDir}/${req.file.filename}`;
+      // const fileUrl = `${req.protocol}://${req.get(
+      //   "host"
+      // )}/uploads/${fileTypeDir}/${req.file.filename}`;
+
+      newMessage.fileUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/${fileTypeDir}/${req.file.filename}`;
       newMessage.fileName = req.file.originalname;
       newMessage.fileType = req.file.mimetype;
+      newMessage.fileSize = req.file.size;
     } else {
       return res.status(400).json({ error: "Invalid message type" });
     }
@@ -93,12 +106,14 @@ export const getProjectMessages = async (req, res) => {
     if (!project) return res.status(404).json({ error: "Project not found" });
 
     if (!Array.isArray(project.members)) {
-      return res.status(400).json({ error: "Project members not defined properly" });
+      return res
+        .status(400)
+        .json({ error: "Project members not defined properly" });
     }
 
     // Safe member check using equals()
-    const isMember = project.members.some(member => 
-      member?.user && member.user.equals(userId)
+    const isMember = project.members.some(
+      (member) => member?.user && member.user.equals(userId)
     );
 
     if (!isMember) {
@@ -141,16 +156,22 @@ export const updateProjectMessage = async (req, res) => {
     }
 
     if (!chatMessage.project.equals(projectId)) {
-      return res.status(400).json({ error: "Message doesn't belong to this project" });
+      return res
+        .status(400)
+        .json({ error: "Message doesn't belong to this project" });
     }
 
     // Safe sender comparison using equals()
     if (!chatMessage.sender.equals(userId)) {
-      return res.status(403).json({ error: "You can only update your own messages" });
+      return res
+        .status(403)
+        .json({ error: "You can only update your own messages" });
     }
 
     if (chatMessage.type !== "text") {
-      return res.status(400).json({ error: "Only text messages can be edited" });
+      return res
+        .status(400)
+        .json({ error: "Only text messages can be edited" });
     }
 
     chatMessage.message = message;
@@ -186,12 +207,16 @@ export const deleteProjectMessage = async (req, res) => {
     }
 
     if (!chatMessage.project.equals(projectId)) {
-      return res.status(400).json({ error: "Message doesn't belong to this project" });
+      return res
+        .status(400)
+        .json({ error: "Message doesn't belong to this project" });
     }
 
     // Safe sender comparison using equals()
     if (!chatMessage.sender.equals(userId)) {
-      return res.status(403).json({ error: "You can only delete your own messages" });
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own messages" });
     }
 
     await chatMessage.deleteOne();
