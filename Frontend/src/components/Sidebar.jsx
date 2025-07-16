@@ -36,14 +36,14 @@ const Sidebar = () => {
   return (
     <div
       className={`flex flex-col sticky top-0 bg-gradient-to-b from-indigo-800 to-indigo-900 text-white md:h-screen h-[121.4vh] transition-all duration-300 ${
-        expanded ? "md:w-64 w-20" : "w-20"
+        expanded ? "lg:w-64 lg:flex hidden w-20" : " lg:flex hidden w-20"
       }`}
     >
       {/* Header */}
       <div className="p-4 pb-2 flex justify-between items-center border-b border-indigo-700">
         <div
           className={`flex items-center overflow-hidden transition-all ${
-            expanded ? "md:w-44 w-0" : "w-0"
+            expanded ? "lg:w-44 w-0" : "w-0"
           }`}
         >
           <div className="bg-white p-2 rounded-lg mr-3">
@@ -78,7 +78,7 @@ const Sidebar = () => {
                 <span className="flex-shrink-0 ml-1">{item.icon}</span>
                 <span
                   className={`ml-3 whitespace-nowrap transition-opacity ${
-                    expanded ? "md:opacity-100 opacity-0 md:relative absolute" : "opacity-0 absolute"
+                    expanded ? "lg:opacity-100 opacity-0 lg:relative absolute" : "opacity-0 absolute"
                   }`}
                 >
                   {item.name}
@@ -105,7 +105,7 @@ const Sidebar = () => {
                 <span className="flex-shrink-0 ml-1">{item.icon}</span>
                 <span
                   className={`ml-3 whitespace-nowrap transition-opacity ${
-                     expanded ? "md:opacity-100 opacity-0 md:relative absolute" : "opacity-0 absolute"
+                     expanded ? "lg:opacity-100 opacity-0 lg:relative absolute" : "opacity-0 absolute"
                   }`}
                 >
                   {item.name}
@@ -121,7 +121,7 @@ const Sidebar = () => {
         <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10 flex-shrink-0" />
         <div
           className={`ml-3 overflow-hidden transition-all ${
-            expanded ? "md:w-40 w-0" : "w-0"
+            expanded ? "lg:w-40 w-0" : "w-0"
           }`}
         >
           <p className="font-medium truncate">{username}</p>
