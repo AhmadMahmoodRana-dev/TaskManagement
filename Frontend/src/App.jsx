@@ -12,7 +12,6 @@ import TaskBoard from "./pages/Main/TaskBoard";
 import ChatBox from "./pages/Main/ChatBox";
 
 const App = () => {
-  
   const navigate = useNavigate();
   const currentHost = window.location.host;
   const isRegisterAllowed = currentHost === "localhost:5173";
