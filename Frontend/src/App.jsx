@@ -10,7 +10,6 @@ import AddProject from "./pages/Main/AddProject";
 import ProfileForm from "./pages/Main/ProfileForm";
 import TaskBoard from "./pages/Main/TaskBoard";
 import ChatBox from "./pages/Main/ChatBox";
-import Testing from "./pages/Testing";
 
 const App = () => {
   
@@ -46,7 +45,6 @@ const App = () => {
           <Route path="/add-project" element={<AddProject />} />
           <Route path="/profileForm" element={<ProfileForm />} />
           <Route path="/taskBoard" element={<TaskBoard />} />
-          <Route path="/testing" element={<Testing />} />
           <Route path="/chatBox/:projectId" element={<ChatBox />} />
         </Route>
       </Routes>
