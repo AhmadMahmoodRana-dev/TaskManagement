@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 import { Link, useParams } from "react-router-dom";
@@ -6,7 +6,7 @@ import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
 import { IoMdArrowRoundForward, IoMdAddCircleOutline } from "react-icons/io";
-import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import { MdDeleteOutline, MdEdit, MdFilterAlt, MdClear } from 'react-icons/md';
 
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
@@ -14,15 +14,110 @@ const ProjectDashboard = () => {
   const [project, setProject] = useState({});
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem("authToken");
-  const name = localStorage.getItem("authName");
   const [userRole, setUserRole] = useState({});
-  const [taskId,setTaskId] = useState("")
+  const [taskId, setTaskId] = useState("");
   const { id } = useParams();
 
-  const OpenEditForm = (id) =>{
-    setTaskId(id)
-    setTaskOpen(!taskOpen)
-  }
+  // FILTER FUNCTIONALLITY
+  const [assignedByFilter, setAssignedByFilter] = useState([]);
+  const [assignedToFilter, setAssignedToFilter] = useState([]);
+  const [priorityFilter, setPriorityFilter] = useState([]);
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
+
+   // Get unique values for filter options
+  const assignedByOptions = [...new Set(tasks.map(task => task.createdBy.name))];
+  const assignedToOptions = [...new Set(tasks.map(task => task.assignedTo.name))];
+  const priorityOptions = ['critical', 'high', 'medium', 'low'];
+  const statusOptions = ['pending', 'in-progress', 'completed'];
+
+  // Filter tasks based on selected criteria
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      // Check assigned by filter
+      if (
+        assignedByFilter.length > 0 &&
+        !assignedByFilter.includes(task.createdBy.name)
+      ) {
+        return false;
+      }
+
+      // Check assigned to filter
+      if (
+        assignedToFilter.length > 0 &&
+        !assignedToFilter.includes(task.assignedTo.name)
+      ) {
+        return false;
+      }
+
+      // Check priority filter
+      if (
+        priorityFilter.length > 0 &&
+        !priorityFilter.includes(task.priority)
+      ) {
+        return false;
+      }
+
+      // Check status filter
+      if (statusFilter.length > 0 && !statusFilter.includes(task.status)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [tasks, assignedByFilter, assignedToFilter, priorityFilter, statusFilter]);
+
+  // Toggle filter selection
+  const toggleFilter = (filterType, value) => {
+    const filterSetters = {
+      assignedBy: setAssignedByFilter,
+      assignedTo: setAssignedToFilter,
+      priority: setPriorityFilter,
+      status: setStatusFilter,
+    };
+
+    const filterStates = {
+      assignedBy: assignedByFilter,
+      assignedTo: assignedToFilter,
+      priority: priorityFilter,
+      status: statusFilter,
+    };
+
+    const setter = filterSetters[filterType];
+    const state = filterStates[filterType];
+
+    if (state.includes(value)) {
+      setter(state.filter((item) => item !== value));
+    } else {
+      setter([...state, value]);
+    }
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setAssignedByFilter([]);
+    setAssignedToFilter([]);
+    setPriorityFilter([]);
+    setStatusFilter([]);
+  };
+
+  // Check if any filter is applied
+  const isFilterApplied =
+    assignedByFilter.length > 0 ||
+    assignedToFilter.length > 0 ||
+    priorityFilter.length > 0 ||
+    statusFilter.length > 0;
+
+  // #####################################
+
+  console.log("TASKS", tasks);
+
+  const name = localStorage.getItem("authName");
+
+  const OpenEditForm = (id) => {
+    setTaskId(id);
+    setTaskOpen(!taskOpen);
+  };
 
   // FETCH SINGLE PRODUCT
 
@@ -270,7 +365,6 @@ const ProjectDashboard = () => {
         </div>
 
         {/* Tasks Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">Project Tasks</h2>
             {userRole?.role == "developer" ? (
@@ -285,6 +379,189 @@ const ProjectDashboard = () => {
               </button>
             )}
           </div>
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+
+          {/* FILTER */}
+          {/* Filter Controls */}
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <MdFilterAlt className="mr-2 text-indigo-600" />
+                Task Filters
+              </h2>
+              <div className="flex space-x-2">
+                {isFilterApplied && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                  >
+                    <MdClear className="mr-1" /> Clear Filters
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors"
+                >
+                  {showFilters ? "Hide Filters" : "Show Filters"}
+                </button>
+              </div>
+            </div>
+
+            {showFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                {/* Assigned By Filter */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Assigned By
+                  </h3>
+                  <div className="space-y-2">
+                    {assignedByOptions.map((assigner) => (
+                      <label key={assigner} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={assignedByFilter.includes(assigner)}
+                          onChange={() => toggleFilter("assignedBy", assigner)}
+                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-2 text-gray-700">{assigner}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Assigned To Filter */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Assigned To
+                  </h3>
+                  <div className="space-y-2">
+                    {assignedToOptions.map((assignee) => (
+                      <label key={assignee} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={assignedToFilter.includes(assignee)}
+                          onChange={() => toggleFilter("assignedTo", assignee)}
+                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-2 text-gray-700">{assignee}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Priority Filter */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Priority
+                  </h3>
+                  <div className="space-y-2">
+                    {priorityOptions.map((priority) => (
+                      <label key={priority} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={priorityFilter.includes(priority)}
+                          onChange={() => toggleFilter("priority", priority)}
+                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-2 text-gray-700 capitalize">
+                          {priority}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </h3>
+                  <div className="space-y-2">
+                    {statusOptions.map((status) => (
+                      <label key={status} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={statusFilter.includes(status)}
+                          onChange={() => toggleFilter("status", status)}
+                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-2 text-gray-700 capitalize">
+                          {status}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Filter Indicators */}
+          {isFilterApplied && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {assignedByFilter.map((filter) => (
+                <span
+                  key={`by-${filter}`}
+                  className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
+                >
+                  Assigned By: {filter}
+                  <button
+                    onClick={() => toggleFilter("assignedBy", filter)}
+                    className="ml-2 text-indigo-600 hover:text-indigo-900"
+                  >
+                    <MdClear size={16} />
+                  </button>
+                </span>
+              ))}
+
+              {assignedToFilter.map((filter) => (
+                <span
+                  key={`to-${filter}`}
+                  className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
+                >
+                  Assigned To: {filter}
+                  <button
+                    onClick={() => toggleFilter("assignedTo", filter)}
+                    className="ml-2 text-indigo-600 hover:text-indigo-900"
+                  >
+                    <MdClear size={16} />
+                  </button>
+                </span>
+              ))}
+
+              {priorityFilter.map((filter) => (
+                <span
+                  key={`priority-${filter}`}
+                  className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
+                >
+                  Priority: {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <button
+                    onClick={() => toggleFilter("priority", filter)}
+                    className="ml-2 text-indigo-600 hover:text-indigo-900"
+                  >
+                    <MdClear size={16} />
+                  </button>
+                </span>
+              ))}
+
+              {statusFilter.map((filter) => (
+                <span
+                  key={`status-${filter}`}
+                  className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
+                >
+                  Status: {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <button
+                    onClick={() => toggleFilter("status", filter)}
+                    className="ml-2 text-indigo-600 hover:text-indigo-900"
+                  >
+                    <MdClear size={16} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* ##################################### */}
 
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -314,7 +591,7 @@ const ProjectDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {tasks.map((task) => {
+                {filteredTasks.map((task) => {
                   return (
                     <tr
                       key={task.id}
@@ -377,7 +654,10 @@ const ProjectDashboard = () => {
                             >
                               <MdDeleteOutline size={20} />
                             </button>
-                            <button onClick={() => OpenEditForm(task?.id)} className="cursor-pointer hover:text-green-600 transition-all duration-700 ease-in-out">
+                            <button
+                              onClick={() => OpenEditForm(task?.id)}
+                              className="cursor-pointer hover:text-green-600 transition-all duration-700 ease-in-out"
+                            >
                               <MdEdit size={20} />
                             </button>
                           </span>

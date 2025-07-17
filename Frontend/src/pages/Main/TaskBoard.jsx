@@ -180,7 +180,7 @@ export default function TaskBoard() {
         try {
           // Update backend
           const response = await axios.put(
-            `${BASEURL}/task/${activeTask._id}`,
+            `${BASEURL}/task/update/${activeTask._id}`,
             {
               status: newStatus,
             },
