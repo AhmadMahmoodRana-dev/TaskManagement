@@ -14,8 +14,6 @@ import LogsPage from "./pages/Main/LogsPage";
 
 const App = () => {
   const navigate = useNavigate();
-  const currentHost = window.location.host;
-  const isRegisterAllowed = currentHost === "localhost:5173";
 
   useEffect(() => {
     const expiry = localStorage.getItem("tokenExpiry");
@@ -33,9 +31,7 @@ const App = () => {
     <>
       <Routes>
         <Route element={<PublicRoutes />}>
-          {isRegisterAllowed && (
-            <Route path="/register" element={<Register />} />
-          )}
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
         </Route>
 
