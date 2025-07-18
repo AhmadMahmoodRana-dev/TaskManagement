@@ -1,5 +1,6 @@
 import Task from "../schema/Task.schema.js";
 import Project from "../schema/Project.schema.js";
+import Log from "../schema/Logs.schema.js";
 
 // Create a new task
 export const createTask = async (req, res) => {
@@ -24,6 +25,15 @@ export const createTask = async (req, res) => {
       dueDate,
       estimatedHours
     });
+
+    await Log.create({
+      action: "Task Created",
+      user: createdBy,
+      task: task._id,
+      project: project,
+      description: `${title} was created by user ${createdBy}`
+    });
+
 
     res.status(201).json(task);
   } catch (error) {
@@ -76,26 +86,49 @@ export const getMyTasks = async (req, res) => {
 // Update task
 export const updateTask = async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(
+    const updatedBy = req.user.userId;
+    const oldTask = await Task.findById(req.params.taskId);
+
+    if (!oldTask) return res.status(404).json({ error: "Task not found" });
+
+    const updatedTask = await Task.findByIdAndUpdate(
       req.params.taskId,
       { $set: req.body },
       { new: true, runValidators: true }
     );
 
-    if (!task) return res.status(404).json({ error: "Task not found" });
+    // Add a log entry
+    await Log.create({
+      action: "Task Updated",
+      user: updatedBy,
+      task: updatedTask._id,
+      project: updatedTask.project,
+      description: `Task "${updatedTask.title}" was updated by user ${updatedBy}`
+    });
 
-    res.status(200).json(task);
+    res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Delete task
 export const deleteTask = async (req, res) => {
   try {
+    const deletedBy = req.user.userId;
     const task = await Task.findByIdAndDelete(req.params.taskId);
 
     if (!task) return res.status(404).json({ error: "Task not found" });
+
+    // Log deletion
+    await Log.create({
+      action: "Task Deleted",
+      user: deletedBy,
+      task: task._id,
+      project: task.project,
+      description: `Task "${task.title}" was deleted by user ${deletedBy}`
+    });
 
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {

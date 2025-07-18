@@ -3,6 +3,7 @@ import path from "path";
 import ChatMessage from "../schema/ChatMessage.schema.js";
 import Project from "../schema/Project.schema.js";
 import { fileURLToPath } from "url";
+import Log from "../schema/Logs.schema.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,10 +66,6 @@ export const addProjectMessage = async (req, res) => {
       const newPath = path.join(uploadDir, req.file.filename);
       fs.renameSync(req.file.path, newPath);
 
-      // const fileUrl = `${req.protocol}://${req.get(
-      //   "host"
-      // )}/uploads/${fileTypeDir}/${req.file.filename}`;
-
       newMessage.fileUrl = `${req.protocol}://${req.get(
         "host"
       )}/uploads/${fileTypeDir}/${req.file.filename}`;
@@ -80,6 +77,18 @@ export const addProjectMessage = async (req, res) => {
     }
 
     await newMessage.save();
+
+    await Log.create({
+      action: "Message Sent",
+      user: userId,
+      project: projectId,
+      description:
+        type === "text"
+          ? `Text message sent by user ${userId}`
+          : `${
+              type.charAt(0).toUpperCase() + type.slice(1)
+            } file sent by user ${userId}`,
+    });
 
     res.status(201).json({
       success: true,
@@ -177,6 +186,13 @@ export const updateProjectMessage = async (req, res) => {
     chatMessage.message = message;
     await chatMessage.save();
 
+    await Log.create({
+      action: "Message Edited",
+      user: userId,
+      project: projectId,
+      description: `User ${userId} edited a text message in project ${projectId}`,
+    });
+
     res.status(200).json({
       success: true,
       data: chatMessage,
@@ -220,6 +236,13 @@ export const deleteProjectMessage = async (req, res) => {
     }
 
     await chatMessage.deleteOne();
+
+    await Log.create({
+      action: "Message Deleted",
+      user: userId,
+      project: projectId,
+      description: `User ${userId} deleted a ${chatMessage.type} message in project ${projectId}`,
+    });
 
     res.status(200).json({
       success: true,

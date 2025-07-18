@@ -1,12 +1,11 @@
+import Log from "../schema/Logs.schema.js";
 import Project from "../schema/Project.schema.js";
-
-
 
 // #################################################################################################################################
 
 // Create a new project
 
-export const CreateProject = async (req,res) => {
+export const CreateProject = async (req, res) => {
   try {
     const { name, description, deadline } = req.body;
     const userId = req.user?.userId;
@@ -26,6 +25,13 @@ export const CreateProject = async (req,res) => {
 
     await project.save();
 
+    await Log.create({
+      action: "Project Created",
+      user: userId,
+      project: project._id,
+      description: `Project "${name}" was created by user ${userId}`,
+    });
+
     res.status(201).json({
       success: true,
       data: await Project.populate(project, {
@@ -43,17 +49,17 @@ export const CreateProject = async (req,res) => {
 
 // #################################################################################################################################
 
-
-
 // Add member to project
 
-export const addMember = async (req,res) =>{
+export const addMember = async (req, res) => {
   try {
     const project = await Project.findById(req.params.projectId);
     if (!project) return res.status(404).json({ error: "Project not found" });
 
     // Authorization check (only owners/managers can add members)
-    const requester = project.members.find((m) => m.user.equals(req.user.userId));
+    const requester = project.members.find((m) =>
+      m.user.equals(req.user.userId)
+    );
     if (!requester || !["owner", "manager"].includes(requester.role)) {
       return res.status(403).json({ error: "Unauthorized action" });
     }
@@ -69,8 +75,16 @@ export const addMember = async (req,res) =>{
       user: userId,
       role,
     });
-    
+
     await project.save();
+
+    // Log new member addition
+    await Log.create({
+      action: "Member Added",
+      user: req.user.userId,
+      project: project._id,
+      description: `User ${userId} was added to project by ${req.user.userId} as ${role}`,
+    });
 
     res.json({
       success: true,
@@ -82,19 +96,14 @@ export const addMember = async (req,res) =>{
       error: error.message,
     });
   }
-}
-
-
-
+};
 
 // #################################################################################################################################
 
-
-
 // Update project progress
 
-export const updateProjectProgress = async (req,res) =>{
-try {
+export const updateProjectProgress = async (req, res) => {
+  try {
     const project = await Project.findById(req.params.projectId);
     if (!project) return res.status(404).json({ error: "Project not found" });
 
@@ -122,15 +131,14 @@ try {
       error: error.message,
     });
   }
-}
-
+};
 
 // #################################################################################################################################
 
 // Get project details
 
-export const  getProjectDetail = async (req,res) =>{
-   try {
+export const getProjectDetail = async (req, res) => {
+  try {
     const project = await Project.findById(req.params.projectId)
       .populate("createdBy", "name email")
       .populate("members.user", "name email role");
@@ -147,16 +155,14 @@ export const  getProjectDetail = async (req,res) =>{
       error: error.message,
     });
   }
-}
-
-
+};
 
 // #################################################################################################################################
 
 // Update project status
 
-export const updateProjectStatus = async () =>{
-try {
+export const updateProjectStatus = async (req, res) => {
+  try {
     const { status } = req.body;
     const validStatuses = ["active", "completed", "archived"];
 
@@ -172,6 +178,14 @@ try {
 
     if (!project) return res.status(404).json({ error: "Project not found" });
 
+    // Log status update
+    await Log.create({
+      action: "Project Status Updated",
+      user: req.user.userId,
+      project: project._id,
+      description: `Project status changed to "${status}" by user ${req.user.userId}`,
+    });
+    
     res.json({
       success: true,
       data: project,
@@ -182,9 +196,7 @@ try {
       error: error.message,
     });
   }
-}
-
-
+};
 
 // #################################################################################################################################
 
@@ -198,7 +210,7 @@ export const getMyProjects = async (req, res) => {
       members: {
         $elemMatch: {
           user: userId,
-          role: { $in: ["owner", "manager","developer"] },
+          role: { $in: ["owner", "manager", "developer"] },
         },
       },
     })
@@ -217,13 +229,10 @@ export const getMyProjects = async (req, res) => {
   }
 };
 
-
-
 // #################################################################################################################################
 
-
 export const getProjectMemberRole = async (req, res) => {
-  const userId = req.user?.userId; 
+  const userId = req.user?.userId;
   const projectId = req.params.projectId;
 
   const project = await Project.findById(projectId);
@@ -235,7 +244,9 @@ export const getProjectMemberRole = async (req, res) => {
   const member = project.members.find((m) => m.user.toString() === userId);
 
   if (!member) {
-    return res.status(403).json({ message: "You are not a member of this project" });
+    return res
+      .status(403)
+      .json({ message: "You are not a member of this project" });
   }
 
   return res.status(200).json({

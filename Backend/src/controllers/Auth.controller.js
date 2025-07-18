@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../schema/User.schema.js";
 import "dotenv/config.js";
+import Log from "../schema/Logs.schema.js";
 
 // REGISTER
 
@@ -34,6 +35,12 @@ export const Register = async (req, res) => {
     });
 
     await newUser.save();
+
+    await Log.create({
+      action: "User Registered",
+      user: newUser._id,
+      description: `New user registered with email ${newUser.email}`,
+    });
 
     res
       .status(201)
@@ -84,6 +91,12 @@ export const Login = async (req, res) => {
         email: user.email,
         role: user.role,
       },
+    });
+
+    await Log.create({
+      action: "User Logged In",
+      user: user._id,
+      description: `User ${user.email} logged in`,
     });
   } catch (error) {
     console.error("Login Error:", error); // 🔍 Debug the actual server error
@@ -136,6 +149,12 @@ export const updateProfile = async (req, res) => {
       { new: true, runValidators: true }
     ).select("-password");
 
+    await Log.create({
+      action: "Profile Updated",
+      user: updatedUser._id,
+      description: `User ${updatedUser.email} updated their profile`,
+    });
+
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -169,6 +188,12 @@ export const getProfile = async (req, res) => {
 // LOGOUT
 
 export const Logout = async (req, res) => {
+  await Log.create({
+    action: "User Logged Out",
+    user: req.user?.userId,
+    description: `User ${req.user?.userId} logged out`,
+  });
+
   res
     .status(200)
     .json({ message: "Logout successful, remove token on client side" });
