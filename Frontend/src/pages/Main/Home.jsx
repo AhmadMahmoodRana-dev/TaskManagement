@@ -315,14 +315,14 @@ const Home = () => {
                         Tasks Completed
                       </span>
                       <span className="text-sm font-bold text-indigo-600">
-                        {stats.dailyCompleted}/15
+                        {completedTasks}/{tasks.length}
                       </span>
                     </div>
                     <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-indigo-600 h-2 rounded-full"
                         style={{
-                          width: `${(stats.dailyCompleted / 15) * 100}%`,
+                          width: `${(completedTasks/tasks.length) * 100}%`,
                         }}
                       ></div>
                     </div>
