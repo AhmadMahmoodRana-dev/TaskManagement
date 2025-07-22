@@ -45,9 +45,9 @@ const Home = () => {
   return (
     <div className="flex w-full min-h-screen bg-gray-50">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white shadow-sm z-10 sticky top-0">
           <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <h2 className="text-xl font-semibold text-gray-800">Dashboard</h2>

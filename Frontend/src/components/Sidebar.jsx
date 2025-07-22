@@ -13,7 +13,7 @@ const Sidebar = () => {
     { name: "Projects", icon: <HiFolder size={20} />, route: "add-project" },
     { name: "Task Board", icon: <HiCalendar size={20} />, route:"taskBoard" },
     { name: "Team", icon: <HiUserGroup size={20} /> },
-    { name: "Reports", icon: <HiChartBar size={20} /> },
+    { name: "Reports", icon: <HiChartBar size={20} />, route:"report" },
   ];
 
   const settingsItems = [
