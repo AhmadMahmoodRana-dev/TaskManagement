@@ -9,6 +9,7 @@ import { IoShieldCheckmarkOutline, IoPersonOutline } from "react-icons/io5";
 import {FaRegEyeSlash,FaEye,FaGithub,FaFacebook,FaGoogle,FaCriticalRole} from "react-icons/fa";
 import { CiLock } from "react-icons/ci";
 import { MdOutlineMailOutline } from "react-icons/md";
+import { BsPersonCircle } from "react-icons/bs";
 
 
 const Register = () => {
@@ -66,20 +67,7 @@ const Register = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <div className="mx-auto bg-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
+            <BsPersonCircle size={30} />
           </div>
           <h2 className="text-center text-3xl font-extrabold text-gray-900">
             Create your account

@@ -78,6 +78,24 @@ export const addProjectMessage = async (req, res) => {
 
     await newMessage.save();
 
+    const io = req.app.get("io"); // Get io instance from Express app
+
+    io.to(projectId).emit("receiveMessage", {
+      _id: newMessage._id,
+      project: newMessage.project,
+      sender: {
+        _id: userId,
+        name: req.user?.name || "Unknown",
+      },
+      message: newMessage.message,
+      type: newMessage.type,
+      fileUrl: newMessage.fileUrl,
+      fileName: newMessage.fileName,
+      fileType: newMessage.fileType,
+      fileSize: newMessage.fileSize,
+      createdAt: newMessage.createdAt,
+    });
+
     await Log.create({
       action: "Message Sent",
       user: userId,
