@@ -61,3 +61,24 @@ audio::-webkit-media-controls-current-time-display,
 audio::-webkit-media-controls-time-remaining-display {
   font-size: 0.8rem;
 }
+
+/* Custom scrollbar for events */
+.rbc-date-cell > div::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rbc-date-cell > div::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 2px;
+}
+
+/* Event container styling */
+.rbc-date-cell > div {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+/* Improved event spacing */
+.rbc-event {
+  margin-bottom: 2px;
+}

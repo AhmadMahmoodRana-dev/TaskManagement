@@ -12,6 +12,7 @@ import TaskBoard from "./pages/Main/TaskBoard";
 import ChatBox from "./pages/Main/ChatBox";
 import LogsPage from "./pages/Main/LogsPage";
 import Report from "./pages/Main/Report";
+import CalendarPage from "./pages/Main/CalendarPage";
 
 const App = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/project-dashboard/:id" element={<ProjectDashboard />} />
           <Route path="/add-project" element={<AddProject />} />
+          <Route path="/calender" element={<CalendarPage />} />
           <Route path="/report" element={<Report />} />
           <Route path="/profileForm" element={<ProfileForm />} />
           <Route path="/taskBoard" element={<TaskBoard />} />

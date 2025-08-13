@@ -12,7 +12,7 @@ const Sidebar = () => {
     { name: "Dashboard", icon: <HiHome size={20} />, route: "/" },
     { name: "Projects", icon: <HiFolder size={20} />, route: "add-project" },
     { name: "Task Board", icon: <HiCalendar size={20} />, route:"taskBoard" },
-    { name: "Team", icon: <HiUserGroup size={20} /> },
+    { name: "Calendar", icon: <HiUserGroup size={20} /> ,route:"calender" },
     { name: "Reports", icon: <HiChartBar size={20} />, route:"report" },
   ];
 
@@ -69,7 +69,7 @@ const Sidebar = () => {
             <Link to={item?.route} key={item.name}>
               <button
                 onClick={() => setActiveItem(item.name)}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
+                className={`flex items-center w-full p-3 rounded-lg transition-colors cursor-pointer ${
                   activeItem === item.name
                     ? "bg-white text-indigo-800 shadow-md"
                     : "hover:bg-indigo-700"

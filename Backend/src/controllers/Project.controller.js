@@ -210,7 +210,7 @@ export const getMyProjects = async (req, res) => {
       members: {
         $elemMatch: {
           user: userId,
-          role: { $in: ["owner", "manager", "developer"] },
+          role: { $in: ["owner", "manager", "developer","viewer"] },
         },
       },
     })

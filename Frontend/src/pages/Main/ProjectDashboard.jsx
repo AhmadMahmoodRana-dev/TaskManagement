@@ -268,6 +268,7 @@ const ProjectDashboard = () => {
     currentPage1 * ShownRows1
   );
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-8 w-full">
       <div className="max-w-7xl mx-auto">
@@ -338,7 +339,7 @@ const ProjectDashboard = () => {
               <h3 className="text-lg font-semibold text-gray-800">
                 Team Members
               </h3>
-              {userRole?.role == "developer" ? (
+              {userRole?.role == "developer" || userRole?.role == "viewer" ?  (
                 ""
               ) : (
                 <button
@@ -615,7 +616,7 @@ const ProjectDashboard = () => {
             <h2 className="text-2xl font-semibold text-gray-800">
               Project Tasks
             </h2>
-            {userRole?.role == "developer" ? (
+            {userRole?.role == "developer" || userRole?.role == "viewer" ? (
               ""
             ) : (
               <button
