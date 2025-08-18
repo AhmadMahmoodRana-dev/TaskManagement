@@ -5,13 +5,16 @@ import { Link, useParams } from "react-router-dom";
 import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
-import { IoMdArrowRoundForward, IoMdAddCircleOutline } from "react-icons/io";
+import { IoMdArrowRoundForward, IoMdAddCircleOutline,IoIosAddCircleOutline } from "react-icons/io";
 import { MdDeleteOutline, MdEdit, MdFilterAlt, MdClear } from "react-icons/md";
 import { GoArrowRight, GoArrowLeft } from "react-icons/go";
+import AddSubtaskModel from "../../components/models/AddSubtaskModel";
+
 
 const ProjectDashboard = () => {
   const [memberOpen, setMemberOpen] = useState(false);
   const [taskOpen, setTaskOpen] = useState(false);
+  const [subtaskOpen, setSubtaskOpen] = useState(false);
   const [project, setProject] = useState({});
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem("authToken");
@@ -121,6 +124,11 @@ const ProjectDashboard = () => {
     setTaskOpen(!taskOpen);
   };
 
+  const OpenSubtaskForm = (id) => {
+    setTaskId(id);
+    setSubtaskOpen(!subtaskOpen);
+  };
+
   // FETCH SINGLE PRODUCT
 
   const fetchSingleProjectData = async () => {
@@ -220,6 +228,7 @@ const ProjectDashboard = () => {
       pending: "bg-gray-100 text-gray-800",
       review: "bg-yellow-100 text-yellow-800",
       archived: "bg-orange-100 text-orange-800",
+      todo:"bg-orange-100 text-orange-800"
     };
     return (
       <span
@@ -633,28 +642,28 @@ const ProjectDashboard = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Task
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Assigned To
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Assigned By
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Priority
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Create Date
                   </th>
-                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Due Date
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3  text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     
                   </th>
                 </tr>
@@ -671,52 +680,58 @@ const ProjectDashboard = () => {
                       } `}
                     >
                       <td className="py-4 px-4">
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 text-sm">
                           {task.title}
                         </div>
-                        <div className="text-gray-500 text-sm mt-1">
+                        <div className="text-gray-500 text-xs mt-1">
                           {task.description}
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center">
                           <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-indigo-800 text-sm font-medium">
+                            <span className="text-indigo-800 text-xs font-medium">
                               {task?.assignedTo?.name.charAt(0)}
                             </span>
                           </div>
-                          <span className="text-sm">{task?.assignedTo?.name}</span>
+                          <span className="text-xs">{task?.assignedTo?.name}</span>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center">
                           <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-indigo-800 text-sm font-medium">
+                            <span className="text-indigo-800 text-xs font-medium">
                               {task?.createdBy?.name.charAt(0)}
                             </span>
                           </div>
-                          <span className="text-sm">{task?.createdBy?.name}</span>
+                          <span className="text-xs">{task?.createdBy?.name}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 text-xs">
                         {getPriorityBadge(task.priority)}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 text-xs">
                         {getStatusBadge(task.status)}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-gray-600 text-sm">
+                        <span className="text-gray-600 text-xs">
                           {formatDate(task.createdAt)}
                         </span>
                       </td>
                       <td className="py-4">
-                        <span className="text-gray-600 text-sm">
+                        <span className="text-gray-600 text-xs">
                           {formatDate(task.dueDate)}
                         </span>
                       </td>
                       {name == task?.createdBy?.name && (
                         <td className="py-4 ">
-                          <span className="text-gray-600 flex justify-center">
+                          <span className="text-gray-600 flex justify-center gap-2">
+                            <button
+                              onClick={() => OpenSubtaskForm(task?.id)}
+                              className="cursor-pointer hover:text-yellow-600 transition-all duration-700 ease-in-out"
+                            >
+                              <IoIosAddCircleOutline size={20} />
+                            </button>
                             <button
                               onClick={() => deleteTask(task?.id)}
                               className="cursor-pointer hover:text-red-600 transition-all duration-700 ease-in-out"
@@ -782,6 +797,15 @@ const ProjectDashboard = () => {
           projectId={id}
           teamMembers={project?.members}
           fetchTasks={allProjectTasks}
+          taskId={taskId}
+          setTaskId={setTaskId}
+        />
+        {/* Add SubTask Modal */}
+        <AddSubtaskModel
+          setOpen={setSubtaskOpen}
+          open={subtaskOpen}
+          projectId={id}
+          teamMembers={project?.members}
           taskId={taskId}
           setTaskId={setTaskId}
         />

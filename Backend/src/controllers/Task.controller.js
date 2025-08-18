@@ -5,7 +5,16 @@ import Log from "../schema/Logs.schema.js";
 // Create a new task
 export const createTask = async (req, res) => {
   try {
-    const { title, description, project, assignedTo, status, priority, dueDate, estimatedHours } = req.body;
+    const {
+      title,
+      description,
+      project,
+      assignedTo,
+      status,
+      priority,
+      dueDate,
+      estimatedHours,
+    } = req.body;
     const createdBy = req.user.userId;
 
     // Optional: Ensure project exists
@@ -23,7 +32,7 @@ export const createTask = async (req, res) => {
       status,
       priority,
       dueDate,
-      estimatedHours
+      estimatedHours,
     });
 
     await Log.create({
@@ -31,9 +40,8 @@ export const createTask = async (req, res) => {
       user: createdBy,
       task: task._id,
       project: project,
-      description: `${title} was created by user ${createdBy}`
+      description: `${title} was created by user ${createdBy}`,
     });
-
 
     res.status(201).json(task);
   } catch (error) {
@@ -63,8 +71,8 @@ export const getTasksByProject = async (req, res) => {
     const tasks = await Task.find({ project: req.params.projectId })
       .sort({ dueDate: 1 })
       .populate("createdBy", "name email")
-      .populate("assignedTo", "name email");
-
+      .populate("assignedTo", "name email")
+      .populate({ path: "subtasks" });
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -74,8 +82,9 @@ export const getTasksByProject = async (req, res) => {
 // Get tasks assigned to the current user
 export const getMyTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user.userId })
-      .sort({ dueDate: 1 });
+    const tasks = await Task.find({ assignedTo: req.user.userId }).sort({
+      dueDate: 1,
+    });
 
     res.status(200).json(tasks);
   } catch (error) {
@@ -103,7 +112,7 @@ export const updateTask = async (req, res) => {
       user: updatedBy,
       task: updatedTask._id,
       project: updatedTask.project,
-      description: `Task "${updatedTask.title}" was updated by user ${updatedBy}`
+      description: `Task "${updatedTask.title}" was updated by user ${updatedBy}`,
     });
 
     res.status(200).json(updatedTask);
@@ -111,7 +120,6 @@ export const updateTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Delete task
 export const deleteTask = async (req, res) => {
@@ -127,7 +135,7 @@ export const deleteTask = async (req, res) => {
       user: deletedBy,
       task: task._id,
       project: task.project,
-      description: `Task "${task.title}" was deleted by user ${deletedBy}`
+      description: `Task "${task.title}" was deleted by user ${deletedBy}`,
     });
 
     res.status(200).json({ message: "Task deleted successfully" });
