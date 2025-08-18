@@ -10,6 +10,7 @@ const Home = () => {
   const name = localStorage.getItem("authName");
   const [activeTab, setActiveTab] = useState("all");
 
+  console.log(projects,"projects")
  
 
   const [stats, setStats] = useState({
@@ -99,7 +100,7 @@ const Home = () => {
                 ></div>
               </div>
               <span className="ml-4 text-sm font-medium">
-                {stats.productivity}% Productivity
+                {((completedTasks / tasks.length) * 100).toFixed(0)}% Productivity
               </span>
             </div>
           </div>
@@ -304,7 +305,7 @@ const Home = () => {
                     Productivity
                   </h3>
                   <span className="text-sm font-medium text-indigo-600">
-                    {stats.weeklyGoal}% Weekly Goal
+                    {((completedTasks / tasks.length) * 100).toFixed(0)}% Weekly Goal
                   </span>
                 </div>
 

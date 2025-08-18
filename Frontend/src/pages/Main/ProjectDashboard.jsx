@@ -651,8 +651,11 @@ const ProjectDashboard = () => {
                   <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Create Date
                   </th>
-                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Due Date
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    
                   </th>
                 </tr>
               </thead>
@@ -682,7 +685,7 @@ const ProjectDashboard = () => {
                               {task?.assignedTo?.name.charAt(0)}
                             </span>
                           </div>
-                          <span>{task?.assignedTo?.name}</span>
+                          <span className="text-sm">{task?.assignedTo?.name}</span>
                         </div>
                       </td>
                       <td className="py-4 px-4">
@@ -692,7 +695,7 @@ const ProjectDashboard = () => {
                               {task?.createdBy?.name.charAt(0)}
                             </span>
                           </div>
-                          <span>{task?.createdBy?.name}</span>
+                          <span className="text-sm">{task?.createdBy?.name}</span>
                         </div>
                       </td>
                       <td className="py-4 px-4">
@@ -702,12 +705,12 @@ const ProjectDashboard = () => {
                         {getStatusBadge(task.status)}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 text-sm">
                           {formatDate(task.createdAt)}
                         </span>
                       </td>
                       <td className="py-4">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 text-sm">
                           {formatDate(task.dueDate)}
                         </span>
                       </td>
