@@ -7,7 +7,7 @@ const SocketContext = createContext(null);
 // Custom hook to use socket
 export const useSocket = () => useContext(SocketContext);
 
-const SOCKET_URL = "http://localhost:5000"; // Change this to your backend URL
+const SOCKET_URL = "https://taskmanagement-production-e770.up.railway.app"; // Change this to your backend URL
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
