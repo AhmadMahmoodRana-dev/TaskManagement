@@ -2,16 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import BASEURL from "../../constant/BaseUrl";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import {
-  MdOutlineAttachEmail,
-  MdEmojiEmotions,
-  MdSend,
-  MdAttachFile,
-} from "react-icons/md";
-import { FaMicrophone, FaStop, FaFileUpload, FaTrash } from "react-icons/fa";
+import { MdEmojiEmotions, MdSend, MdAttachFile } from "react-icons/md";
+import { FaMicrophone, FaStop, FaTrash } from "react-icons/fa";
+import { useSocket } from "../../context/SocketContext"; // Import socket hook
 
 const ChatBox = () => {
   const { projectId } = useParams();
+  const socket = useSocket(); // Get socket instance
   const [project, setProject] = useState({});
   const token = localStorage.getItem("authToken");
   const authId = localStorage.getItem("authId");
@@ -26,6 +23,10 @@ const ChatBox = () => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const fileInputRef = useRef(null);
+
+  // MESSAGES STATE
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
 
   // SINGLE PROJECT DETAIL
   const fetchSingleProjectData = async () => {
@@ -44,14 +45,84 @@ const ChatBox = () => {
     }
   };
 
+  // FETCH MESSAGES
+  const fetchMessages = async () => {
+    try {
+      const { data } = await axios.get(
+        `${BASEURL}/projects/${projectId}/messages`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessages(data.data);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
+
+  // SOCKET.IO SETUP
+  useEffect(() => {
+    if (!socket || !projectId) return;
+
+    console.log("Socket instance:", socket);
+    console.log("Socket connected:", socket.connected);
+
+    // Join the project room
+    socket.emit("joinProjectRoom", projectId);
+    console.log("✅ Emitted joinProjectRoom for:", projectId);
+
+    // Listen for new messages
+    const handleReceiveMessage = (newMessage) => {
+      console.log("🔔 Received new message via socket:", newMessage);
+      
+      // Add the new message to state
+      setMessages((prevMessages) => {
+        console.log("Current messages count:", prevMessages.length);
+        console.log("Adding new message, new count:", prevMessages.length + 1);
+        return [...prevMessages, newMessage];
+      });
+    };
+
+    socket.on("receiveMessage", handleReceiveMessage);
+    console.log("✅ Listening for receiveMessage events");
+
+    // Listen for message updates
+    const handleMessageUpdated = ({ messageId, message }) => {
+      console.log("📝 Message updated via socket:", messageId);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId ? { ...msg, message } : msg
+        )
+      );
+    };
+    socket.on("messageUpdated", handleMessageUpdated);
+
+    // Listen for message deletes
+    const handleMessageDeleted = ({ messageId }) => {
+      console.log("🗑️ Message deleted via socket:", messageId);
+      setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+    };
+    socket.on("messageDeleted", handleMessageDeleted);
+
+    // Cleanup on unmount
+    return () => {
+      console.log("🔄 Cleaning up socket listeners");
+      socket.emit("leaveProjectRoom", projectId);
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("messageUpdated", handleMessageUpdated);
+      socket.off("messageDeleted", handleMessageDeleted);
+    };
+  }, [socket, projectId]);
+
+  // INITIAL DATA FETCH
   useEffect(() => {
     fetchSingleProjectData();
     fetchMessages();
-  }, []);
+  }, [projectId]);
 
   // SEND MESSAGE
-  const [newMessage, setNewMessage] = useState("");
-
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() && !file && !audioBlob) return;
@@ -84,28 +155,9 @@ const ChatBox = () => {
       setNewMessage("");
       setFile(null);
       setAudioBlob(null);
-      fetchMessages();
+      // Don't call fetchMessages() - socket will handle it
     } catch (error) {
       console.error("Error sending message:", error);
-    }
-  };
-
-  // FETCH MESSAGES
-  const [messages, setMessages] = useState([]);
-
-  const fetchMessages = async () => {
-    try {
-      const { data } = await axios.get(
-        `${BASEURL}/projects/${projectId}/messages`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setMessages(data.data);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
     }
   };
 
@@ -118,7 +170,8 @@ const ChatBox = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchMessages();
+      // Remove from local state immediately
+      setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
     } catch (error) {
       console.error("Error deleting message:", error);
     }
@@ -142,12 +195,18 @@ const ChatBox = () => {
     }
 
     try {
-      await axios.put(
+      const { data } = await axios.put(
         `${BASEURL}/projects/${projectId}/messages/${messageId}`,
         { message: editText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchMessages();
+      
+      // Update local state
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId ? { ...msg, message: editText } : msg
+        )
+      );
       setEditingMessageId(null);
     } catch (error) {
       console.error("Error updating message:", error);
@@ -386,7 +445,7 @@ const ChatBox = () => {
                                 : "text-gray-500"
                             }`}
                           >
-                            {formatTime(message?.timestamp)}
+                            {formatTime(message?.timestamp || message?.createdAt)}
                           </p>
 
                           {message?.sender?._id == authId && (

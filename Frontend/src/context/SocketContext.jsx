@@ -1,5 +1,5 @@
 // src/context/SocketContext.jsx
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 const SocketContext = createContext(null);
@@ -7,27 +7,43 @@ const SocketContext = createContext(null);
 // Custom hook to use socket
 export const useSocket = () => useContext(SocketContext);
 
-const SOCKET_URL = "http://localhost:5000"; // Change in one place later
+const SOCKET_URL = "http://localhost:5000"; // Change this to your backend URL
 
 export const SocketProvider = ({ children }) => {
-  const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    socketRef.current = io(SOCKET_URL, {
-      transports: ["websocket"], // optional
+    console.log("🔌 Initializing socket connection...");
+    
+    const newSocket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
     });
 
-    socketRef.current.on("connect", () => {
-      console.log("✅ Connected to socket:", socketRef.current.id);
+    newSocket.on("connect", () => {
+      console.log("✅ Socket connected successfully:", newSocket.id);
     });
+
+    newSocket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("🔴 Socket connection error:", error);
+    });
+
+    setSocket(newSocket);
 
     return () => {
-      socketRef.current.disconnect();
+      console.log("🔌 Disconnecting socket...");
+      newSocket.disconnect();
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider value={socket}>
       {children}
     </SocketContext.Provider>
   );

@@ -15,6 +15,8 @@ export const addProjectMessage = async (req, res) => {
     const userId = req.user?.userId;
     const { message, type = "text" } = req.body;
 
+    console.log("📨 Received message request for project:", projectId);
+
     // Validate user authentication
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -78,14 +80,27 @@ export const addProjectMessage = async (req, res) => {
 
     await newMessage.save();
 
-    const io = req.app.get("io"); // Get io instance from Express app
+    // Populate sender info before emitting
+    await newMessage.populate("sender", "name email");
 
+    const io = req.app.get("io");
+    
+    console.log("📡 Emitting message to room:", projectId);
+    console.log("📝 Message data:", {
+      _id: newMessage._id,
+      sender: newMessage.sender,
+      message: newMessage.message,
+      type: newMessage.type
+    });
+
+    // Emit to ALL clients in the room (including sender)
     io.to(projectId).emit("receiveMessage", {
       _id: newMessage._id,
       project: newMessage.project,
       sender: {
-        _id: userId,
-        name: req.user?.name || "Unknown",
+        _id: newMessage.sender._id,
+        name: newMessage.sender.name,
+        email: newMessage.sender.email,
       },
       message: newMessage.message,
       type: newMessage.type,
@@ -94,7 +109,10 @@ export const addProjectMessage = async (req, res) => {
       fileType: newMessage.fileType,
       fileSize: newMessage.fileSize,
       createdAt: newMessage.createdAt,
+      timestamp: newMessage.createdAt, // Some frontends use timestamp
     });
+
+    console.log("✅ Message emitted successfully");
 
     await Log.create({
       action: "Message Sent",
@@ -113,7 +131,7 @@ export const addProjectMessage = async (req, res) => {
       data: newMessage,
     });
   } catch (error) {
-    console.error("Error adding message:", error);
+    console.error("❌ Error adding message:", error);
     res.status(500).json({ error: "Server error while adding message" });
   }
 };
@@ -204,6 +222,12 @@ export const updateProjectMessage = async (req, res) => {
     chatMessage.message = message;
     await chatMessage.save();
 
+    const io = req.app.get("io");
+    io.to(projectId).emit("messageUpdated", {
+      messageId,
+      message: chatMessage.message,
+    });
+
     await Log.create({
       action: "Message Edited",
       user: userId,
@@ -254,6 +278,9 @@ export const deleteProjectMessage = async (req, res) => {
     }
 
     await chatMessage.deleteOne();
+
+    const io = req.app.get("io");
+    io.to(projectId).emit("messageDeleted", { messageId });
 
     await Log.create({
       action: "Message Deleted",
