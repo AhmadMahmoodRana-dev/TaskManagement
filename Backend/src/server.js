@@ -50,6 +50,10 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/",(req,res) =>{
+  res.send('TASK MANAGEMENT BACKEND ADDED SUCCESSFULLY !')
+})
+
 
 // Connect to DB and start server
 const PORT = process.env.PORT || 3000;
