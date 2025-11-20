@@ -11,6 +11,7 @@ const SOCKET_URL = "http://localhost:5000"; // Change this to your backend URL
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  console.log("SOCKET1",socket)
 
   useEffect(() => {
     console.log("🔌 Initializing socket connection...");

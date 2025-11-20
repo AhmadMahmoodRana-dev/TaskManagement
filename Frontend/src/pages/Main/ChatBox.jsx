@@ -143,6 +143,8 @@ const ChatBox = () => {
         formData.append("message", newMessage);
         formData.append("type", "text");
       }
+      console.log(formData,"FORMDATA")
+      console.log(projectId)
 
       await axios.post(`${BASEURL}/project/${projectId}/messages`, formData, {
         headers: {
