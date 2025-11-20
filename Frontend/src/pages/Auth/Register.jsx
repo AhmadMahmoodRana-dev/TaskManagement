@@ -6,11 +6,17 @@ import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 import { TiTick } from "react-icons/ti";
 import { IoShieldCheckmarkOutline, IoPersonOutline } from "react-icons/io5";
-import {FaRegEyeSlash,FaEye,FaGithub,FaFacebook,FaGoogle,FaCriticalRole} from "react-icons/fa";
+import {
+  FaRegEyeSlash,
+  FaEye,
+  FaGithub,
+  FaFacebook,
+  FaGoogle,
+  FaCriticalRole,
+} from "react-icons/fa";
 import { CiLock } from "react-icons/ci";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
-
 
 const Register = () => {
   const initialValues = {
@@ -63,7 +69,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col justify-center py-6 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <div className="mx-auto bg-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
@@ -85,14 +91,14 @@ const Register = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl rounded-xl sm:px-10 border border-gray-100">
+        <div className="bg-white py-6 px-6 shadow-xl rounded-xl sm:px-10 border border-gray-100">
           <Formik
             initialValues={initialValues}
             validationSchema={RegisterValidationSchema}
             onSubmit={handleSubmit}
           >
             {({ isSubmitting, handleChange, errors, touched }) => (
-              <Form className="space-y-6">
+              <Form className="space-y-4">
                 <div>
                   <label
                     htmlFor="name"
@@ -161,10 +167,7 @@ const Register = () => {
                   <div className="relative mt-1">
                     {/* Left icon */}
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaCriticalRole
-                        size={20}
-color="gray"
-                      />
+                      <FaCriticalRole size={20} color="gray" />
                     </div>
 
                     {/* Formik Select Field */}
@@ -251,142 +254,144 @@ color="gray"
                   />
 
                   {/* Password Strength Meter */}
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">
-                        Password strength
-                      </span>
-                      <span
-                        className={`text-sm font-semibold italic px-3 py-1 rounded-2xl ${strengthColors[passwordStrength]}`}
-                      >
-                        {strengthLabels[passwordStrength]}
-                      </span>
+                  {password && (
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700">
+                          Password strength
+                        </span>
+                        <span
+                          className={`text-sm font-semibold italic px-3 py-1 rounded-2xl ${strengthColors[passwordStrength]}`}
+                        >
+                          {strengthLabels[passwordStrength]}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${strengthColors[passwordStrength]}`}
+                          style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                        ></div>
+                      </div>
+
+                      {/* Password Requirements */}
+                      <div className="grid grid-cols-2 gap-2 mt-3">
+                        <div className="flex items-center">
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              passwordChecks.length
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {passwordChecks.length && (
+                              <TiTick size={22} color="#fff" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              passwordChecks.length
+                                ? "text-gray-700"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            8+ characters
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              passwordChecks.lowercase
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {passwordChecks.lowercase && (
+                              <TiTick size={22} color="#fff" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              passwordChecks.lowercase
+                                ? "text-gray-700"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Lowercase
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              passwordChecks.uppercase
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {passwordChecks.uppercase && (
+                              <TiTick size={22} color="#fff" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              passwordChecks.uppercase
+                                ? "text-gray-700"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Uppercase
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              passwordChecks.number
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {passwordChecks.number && (
+                              <TiTick size={22} color="#fff" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              passwordChecks.number
+                                ? "text-gray-700"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Number
+                          </span>
+                        </div>
+
+                        <div className="flex items-center col-span-2">
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              passwordChecks.specialChar
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {passwordChecks.specialChar && (
+                              <TiTick size={22} color="#fff" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              passwordChecks.specialChar
+                                ? "text-gray-700"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Special character (@$!%*?&#)
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${strengthColors[passwordStrength]}`}
-                        style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                      ></div>
-                    </div>
-
-                    {/* Password Requirements */}
-                    <div className="grid grid-cols-2 gap-2 mt-3">
-                      <div className="flex items-center">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                            passwordChecks.length
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          {passwordChecks.length && (
-                            <TiTick size={22} color="#fff" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            passwordChecks.length
-                              ? "text-gray-700"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          8+ characters
-                        </span>
-                      </div>
-
-                      <div className="flex items-center">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                            passwordChecks.lowercase
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          {passwordChecks.lowercase && (
-                            <TiTick size={22} color="#fff" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            passwordChecks.lowercase
-                              ? "text-gray-700"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          Lowercase
-                        </span>
-                      </div>
-
-                      <div className="flex items-center">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                            passwordChecks.uppercase
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          {passwordChecks.uppercase && (
-                            <TiTick size={22} color="#fff" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            passwordChecks.uppercase
-                              ? "text-gray-700"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          Uppercase
-                        </span>
-                      </div>
-
-                      <div className="flex items-center">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                            passwordChecks.number
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          {passwordChecks.number && (
-                            <TiTick size={22} color="#fff" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            passwordChecks.number
-                              ? "text-gray-700"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          Number
-                        </span>
-                      </div>
-
-                      <div className="flex items-center col-span-2">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                            passwordChecks.specialChar
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          {passwordChecks.specialChar && (
-                            <TiTick size={22} color="#fff" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            passwordChecks.specialChar
-                              ? "text-gray-700"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          Special character (@$!%*?&#)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <div>
@@ -470,39 +475,6 @@ color="gray"
               </Form>
             )}
           </Formik>
-
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <div>
-                <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <FaGithub size={22} color="gray" />
-                </button>
-              </div>
-
-              <div>
-                <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <FaFacebook size={22} color="gray" />
-                </button>
-              </div>
-
-              <div>
-                <button className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <FaGoogle size={22} color="gray" />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

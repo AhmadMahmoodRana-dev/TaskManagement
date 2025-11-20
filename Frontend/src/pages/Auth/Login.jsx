@@ -37,7 +37,7 @@ const Login = () => {
         localStorage.removeItem("role");
         localStorage.removeItem("tokenExpiry");
         alert("Session expired. Please login again.");
-        window.location.reload(); // or navigate to login page
+        window.location.reload(); 
       }, 30 * 60 * 1000);
 
       // 3. Redirect or handle login success

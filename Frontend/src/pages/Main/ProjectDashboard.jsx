@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import BASEURL from "../../constant/BaseUrl";
 import { Link, useParams } from "react-router-dom";
 import formatDate from "../../constant/FormatDate";
 import AddMemberModel from "../../components/models/AddMemberModel";
 import AddTaskModal from "../../components/models/AddTaskModel";
-import { IoMdArrowRoundForward, IoMdAddCircleOutline,IoIosAddCircleOutline } from "react-icons/io";
-import { MdDeleteOutline, MdEdit, MdFilterAlt, MdClear } from "react-icons/md";
+import {IoMdArrowRoundForward,IoMdAddCircleOutline,IoIosAddCircleOutline} from "react-icons/io";
+import { MdDeleteOutline, MdEdit, MdFilterAlt, MdClear,MdExpandMore,MdExpandLess } from "react-icons/md";
 import { GoArrowRight, GoArrowLeft } from "react-icons/go";
 import AddSubtaskModel from "../../components/models/AddSubtaskModel";
 
@@ -21,6 +21,16 @@ const ProjectDashboard = () => {
   const [userRole, setUserRole] = useState({});
   const [taskId, setTaskId] = useState("");
   const { id } = useParams();
+  const [expandedTasks, setExpandedTasks] = useState({});
+
+  // Toggle task expansion
+  const toggleTaskExpansion = (taskId) => {
+    setExpandedTasks((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  };
+
 
   // FILTER FUNCTIONALLITY
   const [assignedByFilter, setAssignedByFilter] = useState([]);
@@ -216,7 +226,7 @@ const ProjectDashboard = () => {
       <span
         className={`px-2 py-1 rounded-full text-xs font-medium ${styles[priority]}`}
       >
-        {priority.charAt(0).toUpperCase() + priority.slice(1)}
+        {priority?.charAt(0).toUpperCase() + priority.slice(1)}
       </span>
     );
   };
@@ -228,7 +238,7 @@ const ProjectDashboard = () => {
       pending: "bg-gray-100 text-gray-800",
       review: "bg-yellow-100 text-yellow-800",
       archived: "bg-orange-100 text-orange-800",
-      todo:"bg-orange-100 text-orange-800"
+      todo: "bg-orange-100 text-orange-800",
     };
     return (
       <span
@@ -236,7 +246,7 @@ const ProjectDashboard = () => {
       >
         {status
           .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .map((word) => word?.charAt(0).toUpperCase() + word.slice(1))
           .join(" ")}
       </span>
     );
@@ -246,7 +256,7 @@ const ProjectDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ShownRows = 5;
   const totapages = Math.ceil(filteredTasks.length / ShownRows);
-  
+
   const nextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totapages));
   };
@@ -254,12 +264,12 @@ const ProjectDashboard = () => {
   const prevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
-  
+
   const currentData = filteredTasks.slice(
     (currentPage - 1) * ShownRows,
     currentPage * ShownRows
   );
-    // PAGINATIONS
+  // PAGINATIONS
   const [currentPage1, setCurrentPage1] = useState(1);
   const ShownRows1 = 3;
   const totapages1 = Math.ceil(project?.members?.length / ShownRows1);
@@ -277,10 +287,9 @@ const ProjectDashboard = () => {
     currentPage1 * ShownRows1
   );
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-8 w-full">
-      <div className="max-w-7xl mx-auto">
+      <div className="2xl:max-w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -348,7 +357,7 @@ const ProjectDashboard = () => {
               <h3 className="text-lg font-semibold text-gray-800">
                 Team Members
               </h3>
-              {userRole?.role == "developer" || userRole?.role == "viewer" ?  (
+              {userRole?.role == "developer" || userRole?.role == "viewer" ? (
                 ""
               ) : (
                 <button
@@ -366,7 +375,7 @@ const ProjectDashboard = () => {
                 <div key={member?.user?._id} className="flex items-center">
                   <div className="bg-indigo-100 w-10 h-10 rounded-full flex items-center justify-center">
                     <span className="text-indigo-800 font-medium">
-                      {member?.user?.name.charAt(0)}
+                      {member?.user?.name?.charAt(0)}
                     </span>
                   </div>
                   <div className="ml-3">
@@ -379,32 +388,32 @@ const ProjectDashboard = () => {
               ))}
 
               <div className="flex justify-end w-full gap-3 items-center">
-              <button
-                onClick={() => prevPage1()}
-                disabled={currentPage1 === 1}
-                className={`p-2 rounded-full cursor-pointer ${
-                  currentPage1 === 1
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-indigo-200"
-                }`}
-              >
-                <GoArrowLeft color="#372aac" size={18} />
-              </button>
+                <button
+                  onClick={() => prevPage1()}
+                  disabled={currentPage1 === 1}
+                  className={`p-2 rounded-full cursor-pointer ${
+                    currentPage1 === 1
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-indigo-200"
+                  }`}
+                >
+                  <GoArrowLeft color="#372aac" size={18} />
+                </button>
 
-              <h1 className="text-lg font-semibold">{currentPage1}</h1>
+                <h1 className="text-lg font-semibold">{currentPage1}</h1>
 
-              <button
-                onClick={() => nextPage1()}
-                disabled={currentPage1 === totapages1}
-                className={`p-2 rounded-full cursor-pointer ${
-                  currentPage1 === totapages1
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-indigo-200"
-                }`}
-              >
-                <GoArrowRight color="#372aac" size={18} />
-              </button>
-            </div>
+                <button
+                  onClick={() => nextPage1()}
+                  disabled={currentPage1 === totapages1}
+                  className={`p-2 rounded-full cursor-pointer ${
+                    currentPage1 === totapages1
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-indigo-200"
+                  }`}
+                >
+                  <GoArrowRight color="#372aac" size={18} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -450,7 +459,7 @@ const ProjectDashboard = () => {
                   onClick={clearAllFilters}
                   className="flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
                 >
-                  <MdClear className="mr-1"  /> Clear Filters
+                  <MdClear className="mr-1" /> Clear Filters
                 </button>
               )}
               <button
@@ -590,7 +599,7 @@ const ProjectDashboard = () => {
                 key={`priority-${filter}`}
                 className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
               >
-                Priority: {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                Priority: {filter?.charAt(0).toUpperCase() + filter.slice(1)}
                 <button
                   onClick={() => toggleFilter("priority", filter)}
                   className="ml-2 text-indigo-600 hover:text-indigo-900"
@@ -605,7 +614,7 @@ const ProjectDashboard = () => {
                 key={`status-${filter}`}
                 className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full flex items-center"
               >
-                Status: {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                Status: {filter?.charAt(0).toUpperCase() + filter.slice(1)}
                 <button
                   onClick={() => toggleFilter("status", filter)}
                   className="ml-2 text-indigo-600 hover:text-indigo-900"
@@ -642,6 +651,9 @@ const ProjectDashboard = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
+                    {/* Expand column */}
+                  </th>
                   <th className="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Task
                   </th>
@@ -663,91 +675,243 @@ const ProjectDashboard = () => {
                   <th className="py-3 px-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Due Date
                   </th>
-                  <th className="py-3  text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    
+                  <th className="py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentData.map((task) => {
+                  // Filter subtasks using the same filter criteria
+                  const filteredSubtasks = task.subtasks
+                    ? task.subtasks.filter((subtask) => {
+                        // Check assigned to filter
+                        if (
+                          assignedToFilter.length > 0 &&
+                          !assignedToFilter.includes(subtask.assignedTo.name)
+                        ) {
+                          return false;
+                        }
+
+                        // Check priority filter
+                        if (
+                          priorityFilter.length > 0 &&
+                          !priorityFilter.includes(subtask.priority)
+                        ) {
+                          return false;
+                        }
+
+                        // Check status filter
+                        if (
+                          statusFilter.length > 0 &&
+                          !statusFilter.includes(subtask.status)
+                        ) {
+                          return false;
+                        }
+
+                        return true;
+                      })
+                    : [];
+
                   return (
-                    <tr
-                      key={task.id}
-                      className={` ${
-                        task.priority == "critical"
-                          ? "bg-red-100"
-                          : "hover:bg-gray-50"
-                      } `}
-                    >
-                      <td className="py-4 px-4">
-                        <div className="font-medium text-gray-900 text-sm">
-                          {task.title}
-                        </div>
-                        <div className="text-gray-500 text-xs mt-1">
-                          {task.description}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center">
-                          <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-indigo-800 text-xs font-medium">
-                              {task?.assignedTo?.name.charAt(0)}
+                    <Fragment key={task.id}>
+                      <tr
+                        className={`${
+                          task.priority == "critical"
+                            ? "bg-red-100"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <td className="py-4 px-2">
+                          {task.subtasks && task.subtasks.length > 0 && (
+                            <button
+                              onClick={() => toggleTaskExpansion(task.id)}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              {expandedTasks[task.id] ? (
+                                <MdExpandLess size={20} />
+                              ) : (
+                                <MdExpandMore size={20} />
+                              )}
+                            </button>
+                          )}
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="font-medium text-gray-900 text-sm">
+                            {task.title}
+                          </div>
+                          <div className="text-gray-500 text-xs mt-1">
+                            {task.description}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center">
+                            <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                              <span className="text-indigo-800 text-xs font-medium">
+                                {task?.assignedTo?.name.charAt(0)}
+                              </span>
+                            </div>
+                            <span className="text-xs">
+                              {task?.assignedTo?.name}
                             </span>
                           </div>
-                          <span className="text-xs">{task?.assignedTo?.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center">
-                          <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-indigo-800 text-xs font-medium">
-                              {task?.createdBy?.name.charAt(0)}
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center">
+                            <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                              <span className="text-indigo-800 text-xs font-medium">
+                                {task?.createdBy?.name.charAt(0)}
+                              </span>
+                            </div>
+                            <span className="text-xs">
+                              {task?.createdBy?.name}
                             </span>
                           </div>
-                          <span className="text-xs">{task?.createdBy?.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-xs">
-                        {getPriorityBadge(task.priority)}
-                      </td>
-                      <td className="py-4 px-4 text-xs">
-                        {getStatusBadge(task.status)}
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className="text-gray-600 text-xs">
-                          {formatDate(task.createdAt)}
-                        </span>
-                      </td>
-                      <td className="py-4">
-                        <span className="text-gray-600 text-xs">
-                          {formatDate(task.dueDate)}
-                        </span>
-                      </td>
-                      {name == task?.createdBy?.name && (
-                        <td className="py-4 ">
-                          <span className="text-gray-600 flex justify-center gap-2">
-                            <button
-                              onClick={() => OpenSubtaskForm(task?.id)}
-                              className="cursor-pointer hover:text-yellow-600 transition-all duration-700 ease-in-out"
-                            >
-                              <IoIosAddCircleOutline size={20} />
-                            </button>
-                            <button
-                              onClick={() => deleteTask(task?.id)}
-                              className="cursor-pointer hover:text-red-600 transition-all duration-700 ease-in-out"
-                            >
-                              <MdDeleteOutline size={20} />
-                            </button>
-                            <button
-                              onClick={() => OpenEditForm(task?.id)}
-                              className="cursor-pointer hover:text-green-600 transition-all duration-700 ease-in-out"
-                            >
-                              <MdEdit size={20} />
-                            </button>
+                        </td>
+                        <td className="py-4 px-4 text-xs">
+                          {getPriorityBadge(task.priority)}
+                        </td>
+                        <td className="py-4 px-4 text-xs">
+                          {getStatusBadge(task.status)}
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-gray-600 text-xs">
+                            {formatDate(task.createdAt)}
                           </span>
                         </td>
-                      )}
-                    </tr>
+                        <td className="py-4">
+                          <span className="text-gray-600 text-xs">
+                            {formatDate(task.dueDate)}
+                          </span>
+                        </td>
+                        {name == task?.createdBy?.name && (
+                          <td className="py-4">
+                            <span className="text-gray-600 flex justify-center gap-2">
+                              <button
+                                onClick={() => OpenSubtaskForm(task?.id)}
+                                className="cursor-pointer hover:text-yellow-600 transition-all duration-700 ease-in-out"
+                              >
+                                <IoIosAddCircleOutline size={20} />
+                              </button>
+                              <button
+                                onClick={() => deleteTask(task?.id)}
+                                className="cursor-pointer hover:text-red-600 transition-all duration-700 ease-in-out"
+                              >
+                                <MdDeleteOutline size={20} />
+                              </button>
+                              <button
+                                onClick={() => OpenEditForm(task?.id)}
+                                className="cursor-pointer hover:text-green-600 transition-all duration-700 ease-in-out"
+                              >
+                                <MdEdit size={20} />
+                              </button>
+                            </span>
+                          </td>
+                        )}
+                      </tr>
+
+                      {/* Subtasks row */}
+                      {expandedTasks[task.id] &&
+                        filteredSubtasks.length > 0 && (
+                          <tr>
+                            <td colSpan={9} className="p-0 bg-gray-50">
+                              <div className="pl-10 pr-4 py-3">
+                                <table className="w-full bg-gray-50 rounded-lg">
+                                  <thead>
+                                    <tr>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Subtask
+                                      </th>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Assigned To
+                                      </th>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Priority
+                                      </th>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                      </th>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Due Date
+                                      </th>
+                                      <th className="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {filteredSubtasks.map((subtask) => (
+                                      <tr
+                                        key={subtask._id}
+                                        className="hover:bg-gray-100"
+                                      >
+                                        <td className="py-3 px-4 text-sm">
+                                          <div className="font-medium text-gray-900">
+                                            {subtask.title}
+                                          </div>
+                                          <div className="text-gray-500 text-xs mt-1">
+                                            {subtask.description}
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          <div className="flex items-center">
+                                            <div className="bg-indigo-100 w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                                              <span className="text-indigo-800 text-xs font-medium">
+                                                {subtask.assignedTo?.name?.charAt(
+                                                  0
+                                                )}
+                                              </span>
+                                            </div>
+                                            <span className="text-xs">
+                                              {subtask.assignedTo?.name}
+                                            </span>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-4 text-xs">
+                                          {getPriorityBadge(subtask.priority)}
+                                        </td>
+                                        <td className="py-3 px-4 text-xs">
+                                          {getStatusBadge(subtask.status)}
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          <span className="text-gray-600 text-xs">
+                                            {formatDate(subtask.dueDate)}
+                                          </span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          {name === task?.createdBy?.name && (
+                                            <div className="flex gap-2">
+                                              <button
+                                                onClick={() =>
+                                                  openEditSubtaskForm(
+                                                    task.id,
+                                                    subtask
+                                                  )
+                                                }
+                                                className="text-blue-600 hover:text-blue-800"
+                                              >
+                                                <MdEdit size={18} />
+                                              </button>
+                                              <button
+                                                onClick={() =>
+                                                  deleteSubtask(subtask._id)
+                                                }
+                                                className="text-red-600 hover:text-red-800"
+                                              >
+                                                <MdDeleteOutline size={18} />
+                                              </button>
+                                            </div>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                    </Fragment>
                   );
                 })}
               </tbody>
